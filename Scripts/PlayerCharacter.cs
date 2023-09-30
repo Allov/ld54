@@ -8,6 +8,7 @@ public class PlayerCharacter : KinematicBody2D
     private AnimatedSprite animatedSprite;
     private Vector2 currentDirection = Vector2.Zero;
     private int detectionIncrement = 0;
+    private string PlayerState;
 
     public override void _Ready()
     {
@@ -43,29 +44,66 @@ public class PlayerCharacter : KinematicBody2D
         {
             currentDirection = direction; // Update de la directiton
             MoveAndSlide(direction * moveSpeed);
-            UpdateAnimation();
+            PlayerState = "Walking";
+            UpdateWalkingAnimation();
         }
         else
         {
             // Pas d'input I guess
-            animatedSprite.Stop();
+            PlayerState = "Idle";
+            UpdateIdlingAnimation();
         }
     }
 
-    private void UpdateAnimation()
+    private void UpdateWalkingAnimation()
     {
         if (currentDirection == Vector2.Up)
+        {
             animatedSprite.Animation = "walk_up";
+        }
         else if (currentDirection == Vector2.Down)
+        {
             animatedSprite.Animation = "walk_down";
+        }
         else if (currentDirection == Vector2.Left)
+        {
             animatedSprite.Animation = "walk_left";
+            animatedSprite.FlipH = true;
+        }   
         else if (currentDirection == Vector2.Right)
+        {
             animatedSprite.Animation = "walk_right";
+            animatedSprite.FlipH = false;
+        }
 
         if (!animatedSprite.Playing)
             animatedSprite.Play();
     }
+
+    private void UpdateIdlingAnimation()
+    {
+        if (currentDirection == Vector2.Up)
+        {
+            animatedSprite.Animation = "idle_up";
+        }
+        else if (currentDirection == Vector2.Down)
+        {
+            animatedSprite.Animation = "idle_down";
+        }
+        else if (currentDirection == Vector2.Left)
+        {
+            animatedSprite.Animation = "idle_left";
+            animatedSprite.FlipH = true;
+        }   
+        else if (currentDirection == Vector2.Right)
+        {
+            animatedSprite.Animation = "idle_right";
+            animatedSprite.FlipH = false;
+        }
+
+        if (!animatedSprite.Playing)
+            animatedSprite.Play();
+    }    
 
     private void HandleInteractions()
     {

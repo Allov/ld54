@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public class PlayerCharacter : KinematicBody2D
 {
@@ -9,6 +10,10 @@ public class PlayerCharacter : KinematicBody2D
     private Vector2 currentDirection = Vector2.Zero;
     private int detectionIncrement = 0;
     private string PlayerState;
+    private List<Artifact> collectedArtifacts = new List<Artifact>();
+
+
+    // todo: array/list d'artifacts
 
     public override void _Ready()
     {
@@ -69,7 +74,7 @@ public class PlayerCharacter : KinematicBody2D
         {
             animatedSprite.Animation = "walk_left";
             animatedSprite.FlipH = true;
-        }   
+        }
         else if (currentDirection == Vector2.Right)
         {
             animatedSprite.Animation = "walk_right";
@@ -94,7 +99,7 @@ public class PlayerCharacter : KinematicBody2D
         {
             animatedSprite.Animation = "idle_left";
             animatedSprite.FlipH = true;
-        }   
+        }
         else if (currentDirection == Vector2.Right)
         {
             animatedSprite.Animation = "idle_right";
@@ -103,7 +108,7 @@ public class PlayerCharacter : KinematicBody2D
 
         if (!animatedSprite.Playing)
             animatedSprite.Play();
-    }    
+    }
 
     private void HandleInteractions()
     {
@@ -128,9 +133,15 @@ public class PlayerCharacter : KinematicBody2D
             GD.Print("Detected by camera!");
             AddDetection(5);
         }
-        else if (area.IsInGroup("artifacts"))
+        else if (area.CollisionLayer == 2)
         {
             GD.Print("Near artifact!");
+            Artifact artifact = area as Artifact;
+            if (artifact != null)
+            {
+                artifact.Collect();
+                collectedArtifacts.Add(artifact);
+            }
         }
     }
 
@@ -142,6 +153,16 @@ public class PlayerCharacter : KinematicBody2D
         {
             // @todo - Gerer l'augmentation et eventuellement game over si = 100
             GD.Print("BUSTED amigo!");
+        }
+    }
+
+    // C'est cette méthode qu'on doit call à partir du script de UI du sac.
+    public void DropArtifact(Artifact artifactToDrop)
+    {
+        if (collectedArtifacts.Count > 0)
+        {
+            artifactToDrop.PanicDropThisArtifact(this.Position);
+            collectedArtifacts.Remove(artifactToDrop); // On enleve de la liste 'logique'
         }
     }
 }

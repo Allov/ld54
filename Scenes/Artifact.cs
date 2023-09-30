@@ -19,27 +19,6 @@ public class Artifact : Area2D
         tileMap = GetNode<TileMap>(tileMapNodePath);
     }
 
-    public void OnBodyEntered(Area2D area)
-    {
-        if (area.CollisionLayer == 2)
-        {
-            if (!isCollected)
-            {
-                playerInRange = true;
-                Collect();
-
-            }
-        }
-    }
-
-    public void OnBodyExited(Area2D area)
-    {
-        if (area.CollisionLayer == 2)
-        {
-            playerInRange = false;
-        }
-    }
-
         public void Collect()
     {
         GD.Print("Debug: artifact collection process");

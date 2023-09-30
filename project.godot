@@ -79,6 +79,15 @@ ui_down={
 2d_render/layer_6="UI"
 2d_render/layer_7="Foreground"
 2d_render/layer_8="Effects"
+2d_physics/layer_1="Guard"
+2d_physics/layer_2="Player"
+2d_physics/layer_3="Environnement"
+2d_physics/layer_4="Background"
+2d_physics/layer_5="InteractiveObjects"
+2d_physics/layer_6="Cameras"
+2d_physics/layer_7="UI"
+2d_physics/layer_8="Foreground"
+2d_physics/layer_9="Effects"
 
 [mono]
 

@@ -9,17 +9,18 @@ public class Artifact : Area2D
     [Export]
     public int artifactValue = 100; // On a un score? Surement... Argent / cash?
     private TileMap tileMap;
-    [Export]
-    public NodePath tileMapNodePath;
     private bool isCollected = false;
     private bool playerInRange = false;
+    
+    [Export]
+    public PackedScene ArtifactShapeScene;
 
     public override void _Ready()
     {
-        tileMap = GetNode<TileMap>(tileMapNodePath);
+        
     }
 
-        public void Collect()
+    public void Collect()
     {
         GD.Print("Debug: artifact collection process");
 

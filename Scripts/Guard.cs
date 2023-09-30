@@ -4,9 +4,9 @@ using System;
 public class Guard : KinematicBody2D
 {
     [Export]
-    private float moveSpeed = 100f;
+    public float moveSpeed = 100f;
     [Export]
-    private Vector2[] patrolPoints; // Array de points de patrol pour creer la "route"
+    public Vector2[] patrolPoints; // Array de points de patrol pour creer la "route"
 
     private AnimatedSprite animatedSprite;
     private int currentPatrolPoint = 0;

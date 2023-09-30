@@ -10,7 +10,6 @@
 
 [node name="Guard" parent="." instance=ExtResource( 2 )]
 position = Vector2( 200, 0 )
-idleTimePerPatrolPoint = 1.0
 
 [node name="Artifact" parent="." instance=ExtResource( 3 )]
 position = Vector2( 90, 167 )

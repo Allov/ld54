@@ -48,6 +48,7 @@ public class PlayerCharacter : KinematicBody2D
         Vector2 inputDirection = GetInputDirection();
         HandleRunning(delta);
         MoveAndHandleAnimation(inputDirection, delta);
+        CheckAndSetBubbleVisibility();
         HandleInteractions();
     }
 
@@ -152,22 +153,34 @@ public class PlayerCharacter : KinematicBody2D
             playerAnimatedSprite.Play();
     }
 
-private void HandleInteractions()
-{
-    if (Input.IsActionJustPressed("ui_select")) // Touche 'E' est mapped a "ui_select" dans la map
+    private void CheckAndSetBubbleVisibility()
     {
-        GD.Print("Interaction Key Pressed!");
-        
-        if (nearExitZone)
+        if (nearArtifact || nearExitZone) 
         {
-            World world = GetParent<World>();
-            if (world != null)
+            interactionBubbleSprite.Visible = true;
+        }
+        else 
+        {
+            interactionBubbleSprite.Visible = false;
+        }
+    }
+
+    private void HandleInteractions()
+    {
+        if (Input.IsActionJustPressed("ui_select")) // Touche 'E' est mapped a "ui_select" dans la map
+        {
+            GD.Print("Interaction Key Pressed!");
+
+            if (nearExitZone)
             {
-                world.TriggerEndLevel();
+                World world = GetParent<World>();
+                if (world != null)
+                {
+                    world.TriggerEndLevel();
+                }
             }
         }
     }
-}
 
     private void AddDetection(int detectionMeter)
     {

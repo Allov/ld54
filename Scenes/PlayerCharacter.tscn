@@ -203,6 +203,7 @@ extents = Vector2( 5, 2.5 )
 collision_layer = 2
 collision_mask = 23
 script = ExtResource( 2 )
+runSpeedMultiplier = 2.0
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 1 )
@@ -221,8 +222,8 @@ anims/Bounce = SubResource( 36 )
 current = true
 limit_left = 0
 limit_top = 0
-limit_right = 624
-limit_bottom = 1104
+limit_right = 1104
+limit_bottom = 624
 limit_smoothed = true
 smoothing_enabled = true
 

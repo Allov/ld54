@@ -18,10 +18,10 @@ public class World : Node
 
     public void TriggerEndLevel()
     {
+        GD.Print("End of level triggered");
         CalculateRunScore();
         CalculateTotalScore();
         DisplayEndOfLevelUI();
-
     }
 
     private void CalculateRunScore()

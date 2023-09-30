@@ -9,38 +9,18 @@ public class Artifact : Area2D
     [Export]
     public int artifactValue = 100; // On a un score? Surement... Argent / cash?
     private TileMap tileMap;
-    [Export]
-    public NodePath tileMapNodePath;
     private bool isCollected = false;
     private bool playerInRange = false;
+    
+    [Export]
+    public PackedScene ArtifactShapeScene;
 
     public override void _Ready()
     {
-        tileMap = GetNode<TileMap>(tileMapNodePath);
+        
     }
 
-    public void OnBodyEntered(Area2D area)
-    {
-        if (area.CollisionLayer == 2)
-        {
-            if (!isCollected)
-            {
-                playerInRange = true;
-                Collect();
-
-            }
-        }
-    }
-
-    public void OnBodyExited(Area2D area)
-    {
-        if (area.CollisionLayer == 2)
-        {
-            playerInRange = false;
-        }
-    }
-
-        public void Collect()
+    public void Collect()
     {
         GD.Print("Debug: artifact collection process");
 

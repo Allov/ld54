@@ -1,10 +1,15 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scenes/PlayerCharacter.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Assets/first-draft-tiles.png" type="Texture" id=2]
 [ext_resource path="res://Scenes/GuardCharacter.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scripts/World.cs" type="Script" id=4]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 27, 14 )
 
 [node name="World" type="Node2D"]
+script = ExtResource( 4 )
 
 [node name="First-draft-tiles" type="Sprite" parent="."]
 position = Vector2( 106, 95 )
@@ -12,10 +17,25 @@ texture = ExtResource( 2 )
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 114, 87 )
-moveSpeed = 50.0
+collision_mask = 31
 
 [node name="Camera" type="Camera2D" parent="Player"]
 current = true
 smoothing_enabled = true
 
 [node name="Guard" parent="." instance=ExtResource( 3 )]
+
+[node name="ScoreLabel" type="Label" parent="."]
+margin_left = 218.0
+margin_top = 171.0
+margin_right = 296.0
+margin_bottom = 188.0
+
+[node name="ExitArea" type="Area2D" parent="."]
+position = Vector2( 268, 19 )
+collision_layer = 512
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitArea"]
+position = Vector2( 7, -4 )
+shape = SubResource( 1 )

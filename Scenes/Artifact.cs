@@ -32,7 +32,15 @@ public class Artifact : Area2D
         }
     }
 
-    public void Collect()
+    public void OnBodyExited(Area2D area)
+    {
+        if (area.CollisionLayer == 2)
+        {
+            playerInRange = false;
+        }
+    }
+
+        public void Collect()
     {
         GD.Print("Debug: artifact collection process");
 
@@ -49,25 +57,13 @@ public class Artifact : Area2D
         }
     }
 
-    public void OnBodyExited(Area2D area)
+    public void PanicDropThisArtifact(Vector2 playerPosition)
     {
-        if (area.CollisionLayer == 2)
-        {
-            playerInRange = false;
-        }
-    }
-
-    public void PanicDropThisArtifact(Vector2 tilePosition)
-    {
-        Vector2 worldPos = tileMap.MapToWorld(tilePosition) + tileMap.CellSize * 0.5f; // 0.5 pour center l'objet (?)
-
-        this.Position = worldPos;
-
+        this.Position = playerPosition;
         // On drop l'artifact à la position actuelle.
         this.Show();
         isCollected = false;
-
-        GD.Print($"Artifact dropped at: {worldPos}");
+        GD.Print($"Artifact dropped at: {playerPosition}");
     }
 }
 

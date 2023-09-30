@@ -83,7 +83,6 @@ public class PlayerCharacter : KinematicBody2D
             currentStamina += staminaRecoveryRate * delta; // Restaure la stamina.
             currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina); // Check de stamina pour les valeurs min max.
         }
-        GD.Print("Stamina value: " + currentStamina);
     }
 
     private void MoveAndHandleAnimation(Vector2 direction, float delta)
@@ -153,59 +152,23 @@ public class PlayerCharacter : KinematicBody2D
             playerAnimatedSprite.Play();
     }
 
-    private void HandleInteractions()
+private void HandleInteractions()
+{
+    if (Input.IsActionJustPressed("ui_select")) // Touche 'E' est mapped a "ui_select" dans la map
     {
-        if (Input.IsActionJustPressed("ui_select")) // Touche 'E' est mapped a "ui_select" dans la map
+        GD.Print("Interaction Key Pressed!");
+        
+        if (nearExitZone) // Check if the player is near the exit zone
         {
-            // @todo - gerer interactions avec artifacts et interactable objects
-            GD.Print("Interaction Key Pressed!");
-        }
-    }
-
-    // Placeholder lorsque joueur collide
-    private void OnAreaEntered(Area2D area)
-    {
-        if (area.CollisionLayer == 1)
-        {
-            GD.Print("Near a guard!");
-            nearAGuard = true;
-            AddDetection(5);
-        }
-        if (area.CollisionLayer == 5) //artifacts
-        {
-            GD.Print("Near artifact!");
-            nearArtifact = true;
-            interactionBubbleSprite.Visible = true;
-            Artifact artifact = area as Artifact;
-            if (artifact != null)
+            // Get the parent node which should be "World" in this case
+            World world = GetParent<World>();
+            if (world != null)
             {
-                artifact.Collect();
-                collectedArtifacts.Add(artifact);
+                world.TriggerEndLevel(); // Call the method from the World script
             }
         }
-        if (area.CollisionLayer == 10)
-        {
-            GD.Print("Near exit zone!");
-            nearExitZone = true;
-        }
     }
-
-    private void OnAreaExit(Area2D area)
-    {
-        if (area.CollisionLayer == 1)
-        {
-            nearAGuard = false;
-        }
-        if (area.CollisionLayer == 5)
-        {
-            nearArtifact = false;
-        }
-        if (area.CollisionLayer == 10)
-        {
-            nearExitZone = false;
-        }
-
-    }
+}
 
     private void AddDetection(int detectionMeter)
     {
@@ -213,7 +176,7 @@ public class PlayerCharacter : KinematicBody2D
         // @todo - Update le UI
         if (detectionIncrement >= 0)
         {
-            // @todo - Gerer l'augmentation et eventuellement game over si = 100
+            // @todo - Gerer l'augmentation et eventuellement game over si = 100. Game over.
             GD.Print("BUSTED amigo!");
         }
     }

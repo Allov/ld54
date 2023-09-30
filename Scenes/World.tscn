@@ -16,11 +16,9 @@ position = Vector2( 106, 95 )
 texture = ExtResource( 2 )
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
-position = Vector2( 114, 87 )
-collision_mask = 31
 
 [node name="Camera" type="Camera2D" parent="Player"]
-current = true
+position = Vector2( 114, 87 )
 smoothing_enabled = true
 
 [node name="Guard" parent="." instance=ExtResource( 3 )]
@@ -32,10 +30,17 @@ margin_right = 296.0
 margin_bottom = 188.0
 
 [node name="ExitArea" type="Area2D" parent="."]
+modulate = Color( 0.843137, 0.141176, 0.141176, 0.976471 )
+self_modulate = Color( 0.906738, 0.166471, 0.166471, 1 )
 position = Vector2( 268, 19 )
 collision_layer = 512
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitArea"]
+modulate = Color( 0.854902, 0.0901961, 0.0901961, 1 )
+self_modulate = Color( 0.862745, 0.196078, 0.196078, 1 )
 position = Vector2( 7, -4 )
 shape = SubResource( 1 )
+
+[connection signal="body_entered" from="ExitArea" to="." method="OnExitAreaBodyEntered"]
+[connection signal="body_exited" from="ExitArea" to="." method="OnExitAreaBodyExited"]

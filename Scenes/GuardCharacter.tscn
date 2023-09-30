@@ -182,7 +182,7 @@ extents = Vector2( 32, 32 )
 [sub_resource type="CircleShape2D" id=4]
 radius = 95.1893
 
-[node name="KinematicBody2D" type="KinematicBody2D" groups=["guards"]]
+[node name="Guard" type="KinematicBody2D" groups=["guards"]]
 script = ExtResource( 2 )
 patrolPoints = PoolVector2Array( 0, 200, 200, 200, 200, 100, 0, 100 )
 idleTimePerPatrolPoint = 3.0

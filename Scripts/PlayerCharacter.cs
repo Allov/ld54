@@ -21,10 +21,10 @@ public class PlayerCharacter : KinematicBody2D
     private Vector2 currentDirection = Vector2.Zero;
     private int detectionIncrement = 0;
     private string PlayerState;
-    private List<Artifact> collectedArtifacts = new List<Artifact>();
-
+    public List<Artifact> collectedArtifacts = new List<Artifact>();
     private Node2D interactionBubbleSprite;
     private AnimationPlayer interactionBubbleAnimationPlayer;
+    public bool nearAGuard, nearArtifact, nearExitZone;
 
 
     // todo: array/list d'artifacts
@@ -38,6 +38,9 @@ public class PlayerCharacter : KinematicBody2D
 
         calculatedMovementSpeed = baseMovementSpeed;
         currentStamina = maxStamina;
+        nearAGuard = false;
+        nearArtifact = false;
+        nearExitZone = false;
     }
 
     public override void _PhysicsProcess(float delta)
@@ -64,7 +67,7 @@ public class PlayerCharacter : KinematicBody2D
         return direction.Normalized();
     }
 
-        private void HandleRunning(float delta)
+    private void HandleRunning(float delta)
     {
         isRunning = Input.IsActionPressed("run") && currentStamina > 0; // Check si le perso court et a de la stamina.
 
@@ -162,15 +165,16 @@ public class PlayerCharacter : KinematicBody2D
     // Placeholder lorsque joueur collide
     private void OnAreaEntered(Area2D area)
     {
-        // Identifier type de zone
         if (area.CollisionLayer == 1)
         {
             GD.Print("Near a guard!");
+            nearAGuard = true;
             AddDetection(5);
         }
-        else if (area.CollisionLayer == 2)
+        if (area.CollisionLayer == 5) //artifacts
         {
             GD.Print("Near artifact!");
+            nearArtifact = true;
             interactionBubbleSprite.Visible = true;
             Artifact artifact = area as Artifact;
             if (artifact != null)
@@ -179,6 +183,28 @@ public class PlayerCharacter : KinematicBody2D
                 collectedArtifacts.Add(artifact);
             }
         }
+        if (area.CollisionLayer == 10)
+        {
+            GD.Print("Near exit zone!");
+            nearExitZone = true;
+        }
+    }
+
+    private void OnAreaExit(Area2D area)
+    {
+        if (area.CollisionLayer == 1)
+        {
+            nearAGuard = false;
+        }
+        if (area.CollisionLayer == 5)
+        {
+            nearArtifact = false;
+        }
+        if (area.CollisionLayer == 10)
+        {
+            nearExitZone = false;
+        }
+
     }
 
     private void AddDetection(int detectionMeter)

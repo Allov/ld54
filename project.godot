@@ -93,6 +93,7 @@ run={
 2d_physics/layer_7="UI"
 2d_physics/layer_8="Foreground"
 2d_physics/layer_9="Effects"
+2d_physics/layer_10="ExitArea"
 
 [mono]
 

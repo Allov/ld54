@@ -10,7 +10,7 @@ public class Bag : Node2D
     [Export]
     public NodePath InventoryGridNode;
     private TileMap InventoryGrid;
-    public bool[,] Tiles;
+    public Tile[,] Tiles;
     private Vector2 OffsetGridCell;
     private Vector2 OffsetGridPosition;
     private TileMap CurrentArtifactShape;
@@ -22,7 +22,7 @@ public class Bag : Node2D
     public List<PackedScene> ArtifactScenes;
     public List<TileMap> Artifacts = new List<TileMap>();
     private Tween Tween;
-    
+
     [Export]
     public float SnapPositionSpeed = 0.128f;
     private bool CanPlace;
@@ -36,7 +36,18 @@ public class Bag : Node2D
             Artifacts.Add(artifactScene.Instance() as TileMap);
         }
 
-        Tiles = new bool[(int)BoardSize.x, (int)BoardSize.y];
+        Tiles = new Tile[(int)BoardSize.x, (int)BoardSize.y];
+
+        for(var x = 0; x < ((int)BoardSize.x); x++)
+        {
+            for(var y = 0; y < ((int)BoardSize.y); y++)
+            {
+                Tiles[x, y] = new Tile
+                {
+                    HasShape = false
+                };
+            }
+        }
 
         // this is our (0,0) for the inventory grid.
         OffsetGridCell = new Vector2(8, 3);
@@ -82,7 +93,7 @@ public class Bag : Node2D
         for (var i = 0; i < cells.Count; i++)
         {
             var cell = (Vector2)cells[i] + cellPosition;
-            Tiles[(int)cell.x, (int)cell.y] = true;
+            Tiles[(int)cell.x, (int)cell.y] = new Tile { Shape = shape, HasShape = true };
         }
     }
 
@@ -149,7 +160,7 @@ public class Bag : Node2D
 
             // GD.Print((int)(cell.x - OffsetGridCell.x), (int)(cell.y - OffsetGridCell.y));
 
-            if (Tiles[(int)(cell.x - OffsetGridCell.x), (int)(cell.y - OffsetGridCell.y)])
+            if (Tiles[(int)(cell.x - OffsetGridCell.x), (int)(cell.y - OffsetGridCell.y)].HasShape)
             {
                 return false;
             }
@@ -194,4 +205,10 @@ public class Bag : Node2D
         }
         CurrentArtifactShape.UpdateBitmaskRegion();
     }
+}
+
+public class Tile
+{
+    public TileMap Shape;
+    public bool HasShape;
 }

@@ -158,13 +158,12 @@ private void HandleInteractions()
     {
         GD.Print("Interaction Key Pressed!");
         
-        if (nearExitZone) // Check if the player is near the exit zone
+        if (nearExitZone)
         {
-            // Get the parent node which should be "World" in this case
             World world = GetParent<World>();
             if (world != null)
             {
-                world.TriggerEndLevel(); // Call the method from the World script
+                world.TriggerEndLevel();
             }
         }
     }

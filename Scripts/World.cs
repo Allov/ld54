@@ -12,16 +12,16 @@ public class World : Node
     public override void _Ready()
     {
         Area2D exitArea = GetNode<Area2D>("ExitArea");
-        player = GetNode<PlayerCharacter>("PlayerCharacter");
+        player = GetNode<PlayerCharacter>("Player");
         scoreLabel = GetNode<Label>("ScoreLabel");
     }
 
     public void TriggerEndLevel()
     {
+        GD.Print("End of level triggered");
         CalculateRunScore();
         CalculateTotalScore();
         DisplayEndOfLevelUI();
-
     }
 
     private void CalculateRunScore()
@@ -44,20 +44,22 @@ public class World : Node
         GD.Print("Level Ended!");
     }
 
-    // private void _OnExitAreaEntered(Area2D area)
-    // {
-    //     if (area == player)
-    //     {
-    //         player.nearExitZone = true;
-    //     }
-    // }
+    private void OnExitAreaBodyEntered(Node body)
+    {
+        if (body == player)
+        {
+            GD.Print("Player enters exit zone");
+            player.nearExitZone = true;
+        }
+    }
 
-    // private void _OnExitAreaExited(Area2D area)
-    // {
-    //     if (area == player)
-    //     {
-    //         player.nearExitZone = false;
-    //     }
-    // }
+    private void OnExitAreaBodyExited(Node body)
+    {
+        if (body == player)
+        {
+            GD.Print("Player leaving exit zone");
+            player.nearExitZone = false;
+        }
+    }
 
 }

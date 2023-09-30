@@ -220,10 +220,10 @@ anims/Bounce = SubResource( 36 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
-limit_left = 0
-limit_top = 0
-limit_right = 1104
-limit_bottom = 624
+limit_left = -16
+limit_top = -16
+limit_right = 1136
+limit_bottom = 656
 limit_smoothed = true
 smoothing_enabled = true
 

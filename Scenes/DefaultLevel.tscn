@@ -1,6 +1,5 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=24 format=2]
 
-[ext_resource path="res://Scenes/GuardCharacter.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/PlayerCharacter.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Assets/sprites.png" type="Texture" id=3]
 
@@ -450,9 +449,6 @@ points = PoolVector2Array( 16, 32, 0, 32, 0, 0, 16, 0 )
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
 position = Vector2( 440, 224 )
-
-[node name="Guard" parent="." instance=ExtResource( 1 )]
-visible = false
 
 [node name="Tiles" type="TileMap" parent="."]
 z_index = -1

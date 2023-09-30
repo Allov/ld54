@@ -184,8 +184,6 @@ radius = 95.1893
 
 [node name="Guard" type="KinematicBody2D" groups=["guards"]]
 script = ExtResource( 2 )
-patrolPoints = PoolVector2Array( 0, 200, 200, 200, 200, 100, 0, 100 )
-idleTimePerPatrolPoint = 3.0
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 material = SubResource( 1 )

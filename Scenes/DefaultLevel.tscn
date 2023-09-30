@@ -449,10 +449,13 @@ points = PoolVector2Array( 16, 32, 0, 32, 0, 0, 16, 0 )
 [node name="Level" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
+position = Vector2( 440, 224 )
 
 [node name="Guard" parent="." instance=ExtResource( 1 )]
+visible = false
 
 [node name="Tiles" type="TileMap" parent="."]
+z_index = -1
 tile_set = SubResource( 2 )
 cell_size = Vector2( 16, 16 )
 collision_layer = 4

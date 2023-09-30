@@ -13,6 +13,10 @@ _data = {
 [node name="Player" parent="." index="0"]
 position = Vector2( -32, 32 )
 
+[node name="Tiles" parent="." index="1"]
+show_collision = true
+collision_mask = 3
+
 [node name="Path2D" type="Path2D" parent="." index="2"]
 curve = SubResource( 1 )
 

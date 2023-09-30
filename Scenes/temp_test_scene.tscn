@@ -13,3 +13,4 @@ position = Vector2( 200, 0 )
 
 [node name="Artifact" parent="." instance=ExtResource( 3 )]
 position = Vector2( 90, 167 )
+ArtifactShapeScene = null

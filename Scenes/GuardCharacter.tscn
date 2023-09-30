@@ -183,6 +183,7 @@ extents = Vector2( 8, 8 )
 radius = 95.1893
 
 [node name="Guard" type="KinematicBody2D" groups=["guards"]]
+collision_mask = 6
 script = ExtResource( 2 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]

@@ -1,7 +1,8 @@
-[gd_scene load_steps=38 format=2]
+[gd_scene load_steps=39 format=2]
 
 [ext_resource path="res://Assets/animations.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/Guard.cs" type="Script" id=2]
+[ext_resource path="res://Assets/light.png" type="Texture" id=3]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 
@@ -198,6 +199,14 @@ collision_mask = 2
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="DetectionArea"]
 polygon = PoolVector2Array( 0, 1, -64, 65, 64, 65 )
+
+[node name="Light2D" type="Light2D" parent="."]
+position = Vector2( 2.38419e-07, 8 )
+rotation = -6.31018
+texture = ExtResource( 3 )
+offset = Vector2( -0.534278, 28.6709 )
+energy = 0.8
+shadow_enabled = true
 
 [connection signal="body_entered" from="DetectionArea" to="." method="OnDetectionAreaEntered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="OnDetectionAreaExited"]

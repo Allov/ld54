@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=2]
+[gd_scene load_steps=45 format=2]
 
 [ext_resource path="res://Assets/sprites.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/PlayerCharacter.cs" type="Script" id=2]
@@ -202,18 +202,12 @@ tracks/0/keys = {
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 8, 8 )
 
-[sub_resource type="Gradient" id=38]
-colors = PoolColorArray( 0.0194397, 0.0546875, 0.0224688, 0, 0.516113, 0.875, 0.647892, 0.989655 )
-
-[sub_resource type="GradientTexture" id=39]
-gradient = SubResource( 38 )
-
 [sub_resource type="Environment" id=37]
 background_mode = 4
 glow_enabled = true
+glow_strength = 0.61
 glow_blend_mode = 0
 adjustment_enabled = true
-adjustment_color_correction = SubResource( 39 )
 
 [sub_resource type="ShaderMaterial" id=40]
 shader = ExtResource( 5 )

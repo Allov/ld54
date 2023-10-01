@@ -210,7 +210,6 @@ frames = SubResource( 1 )
 animation = "idle_down"
 
 [node name="InteractionBubble" type="Sprite" parent="."]
-visible = false
 position = Vector2( 0, -25 )
 texture = SubResource( 35 )
 

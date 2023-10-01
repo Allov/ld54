@@ -8,7 +8,7 @@ public class Guard : KinematicBody2D
     [Export]
     private float idleTimePerPatrolPoint = 3f;
     [Export]
-    private float detectionTimerMax = 1.0f;
+    private float detectionTimerMax = 2.0f;
 
     private AnimatedSprite animatedSprite;
     private string idleAnimation = "idle_up";
@@ -20,6 +20,8 @@ public class Guard : KinematicBody2D
     private Vector2 lastPosition;
     private bool isPlayerDetected = false;
     private float detectionTimer;
+    private Node2D questionBubbleSprite;
+    private Node2D exclamationBubbleSprite;
     public float currentIdleTimer = 0f;
 
     public override void _Ready()
@@ -30,6 +32,10 @@ public class Guard : KinematicBody2D
         detectionArea = GetNode<Area2D>("DetectionArea");
         detectionTimer = detectionTimerMax;
         lastPosition = GlobalPosition;
+        questionBubbleSprite = GetNode<Node2D>("QuestionBubble");
+        questionBubbleSprite.Visible = false;
+        exclamationBubbleSprite = GetNode<Node2D>("ExclamationBubble");
+        exclamationBubbleSprite.Visible = false;
         PreparePatrolPoint();
     }
 
@@ -60,8 +66,22 @@ public class Guard : KinematicBody2D
             UpdateIdleAnimation();
             detectionTimer += delta;
             
-            if (detectionTimer > detectionTimerMax)
+            if (detectionTimer >= detectionTimerMax)
+            {
                 detectionTimer = detectionTimerMax;
+                questionBubbleSprite.Visible = false;
+                exclamationBubbleSprite.Visible = false;
+            }
+            else if (detectionTimer <= detectionTimerMax / 2)
+            {
+                questionBubbleSprite.Visible = false;
+                exclamationBubbleSprite.Visible = true;
+            }
+            else
+            {
+                questionBubbleSprite.Visible = true;
+                exclamationBubbleSprite.Visible = false;
+            }
         }
         else
         {
@@ -90,9 +110,19 @@ public class Guard : KinematicBody2D
         UpdateIdleAnimation();
         detectionTimer -= delta;
 
-        if (detectionTimer <= 0)
+        if (detectionTimer <= 0.0f)
         {
             detectionTimer = 0.0f;
+        }
+        else if (detectionTimer <= detectionTimerMax / 2)
+        {
+            questionBubbleSprite.Visible = false;
+            exclamationBubbleSprite.Visible = true;
+        }
+        else
+        {
+            questionBubbleSprite.Visible = true;
+            exclamationBubbleSprite.Visible = false;
         }
     }
 

@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Scenes/LevelOne.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/LevelThree.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/random-is-random.ogg" type="AudioStream" id=3]
 [ext_resource path="res://Scripts/World.cs" type="Script" id=4]
 
 [node name="World" type="Node2D"]
@@ -29,3 +30,7 @@ text = "Score:"
 [node name="TextureProgress" type="TextureProgress" parent="CanvasLayer"]
 margin_right = 40.0
 margin_bottom = 40.0
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = -31.966

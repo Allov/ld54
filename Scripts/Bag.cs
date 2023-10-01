@@ -102,6 +102,10 @@ public class Bag : Node2D
 
         if (Visible && Input.IsActionJustPressed("ui_cancel"))
         {
+            if (CurrentArtifactShape != null)
+                CurrentArtifactShape.Modulate = Colors.White;
+
+
             if (Placed && !Replacing)
             {
                 Placed = false;

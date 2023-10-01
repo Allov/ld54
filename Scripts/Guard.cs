@@ -84,7 +84,7 @@ public class Guard : KinematicBody2D
     {
         if (playerInNoiseArea != null)
         {
-            if (playerInNoiseArea.isRunning)
+            if (playerInNoiseArea.isRunning && playerInNoiseArea.isMoving)
             {
                 isPlayerDetectedByNoise = true;
             }
@@ -101,7 +101,7 @@ public class Guard : KinematicBody2D
         {
             playerInNoiseArea = player;
 
-            if (player.isRunning)
+            if (player.isRunning && player.isMoving)
             {
                 isGuardDetectingNoise = true;
                 if (!investigationNoise)

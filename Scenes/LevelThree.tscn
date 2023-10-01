@@ -496,7 +496,7 @@ position = Vector2( 264, 344 )
 curve = SubResource( 13 )
 
 [node name="PathFollow2D" type="PathFollow2D" parent="Path2D7" index="0"]
-position = Vector2( 101, 47 )
+position = Vector2( 96, 184 )
 rotate = false
 lookahead = 0.001
 
@@ -507,7 +507,7 @@ position = Vector2( 264, 344 )
 curve = SubResource( 15 )
 
 [node name="PathFollow2D" type="PathFollow2D" parent="Path2D9" index="0"]
-position = Vector2( 96, 184 )
+position = Vector2( 96, 64 )
 rotate = false
 lookahead = 0.001
 
@@ -606,7 +606,7 @@ position = Vector2( 44, 140 )
 curve = SubResource( 20 )
 
 [node name="PathFollow2D" type="PathFollow2D" parent="Path2D14" index="0"]
-position = Vector2( 96, 48 )
+position = Vector2( 140, 44 )
 rotate = false
 lookahead = 0.001
 
@@ -624,7 +624,7 @@ lookahead = 0.001
 [node name="Guard" parent="Path2D11/PathFollow2D" index="0" instance=ExtResource( 1 )]
 
 [node name="ExitArea" parent="." index="49"]
-position = Vector2( 1048, 344 )
+position = Vector2( 1040, 315 )
 
 [editable path="Artifact"]
 [editable path="Artifact2"]

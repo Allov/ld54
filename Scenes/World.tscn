@@ -1,12 +1,21 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Scenes/LevelOne.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/LevelThree.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/random-is-random.ogg" type="AudioStream" id=3]
 [ext_resource path="res://Scripts/World.cs" type="Script" id=4]
+[ext_resource path="res://Scenes/LevelZero.tscn" type="PackedScene" id=5]
+
+[sub_resource type="Environment" id=1]
+background_mode = 4
+glow_enabled = true
+glow_strength = 0.61
+glow_blend_mode = 0
+adjustment_enabled = true
 
 [node name="World" type="Node2D"]
 script = ExtResource( 4 )
-packedScenes = [ ExtResource( 1 ), ExtResource( 2 ) ]
+packedScenes = [ ExtResource( 5 ), ExtResource( 1 ), ExtResource( 2 ) ]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -29,6 +38,10 @@ text = "Score:"
 [node name="TextureProgress" type="TextureProgress" parent="CanvasLayer"]
 margin_right = 40.0
 margin_bottom = 40.0
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = -31.966
 
 [node name="GameOverCanvas" type="CanvasLayer" parent="."]
 
@@ -66,3 +79,6 @@ margin_right = 73.0
 margin_bottom = 69.0
 shortcut_in_tooltip = false
 text = "Restart"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 1 )

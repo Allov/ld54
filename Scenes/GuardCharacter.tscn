@@ -183,7 +183,7 @@ extents = Vector2( 8, 8 )
 extents = Vector2( 10.5, 16 )
 
 [node name="Guard" type="KinematicBody2D" groups=["guards"]]
-collision_mask = 6
+collision_mask = 1030
 script = ExtResource( 2 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
@@ -203,6 +203,7 @@ collision_mask = 2
 polygon = PoolVector2Array( 0, 1, -64, 65, 64, 65 )
 
 [node name="NoiseDetection" type="Area2D" parent="."]
+collision_mask = 1024
 
 [node name="CollisionNoise" type="CollisionShape2D" parent="NoiseDetection"]
 position = Vector2( 0.5, 1 )
@@ -210,3 +211,5 @@ shape = SubResource( 37 )
 
 [connection signal="body_entered" from="DetectionArea" to="." method="OnDetectionAreaEntered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="OnDetectionAreaExited"]
+[connection signal="area_entered" from="NoiseDetection" to="." method="OnNoiseDetectionAreaEntered"]
+[connection signal="area_exited" from="NoiseDetection" to="." method="OnNoiseDetectionAreaExited"]

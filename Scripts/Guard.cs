@@ -22,6 +22,8 @@ public class Guard : KinematicBody2D
     private float detectionTimer;
     public float currentIdleTimer = 0f;
 
+    Area2D noiseDetectionArea;
+
     public override void _Ready()
     {
         animatedSprite = GetNode<AnimatedSprite>("AnimatedSprite");
@@ -31,6 +33,8 @@ public class Guard : KinematicBody2D
         detectionTimer = detectionTimerMax;
         lastPosition = GlobalPosition;
         PreparePatrolPoint();
+
+        noiseDetectionArea = GetNode<Area2D>("NoiseDetection");
     }
 
     public override void _Process(float delta)
@@ -55,11 +59,11 @@ public class Guard : KinematicBody2D
     {
         Vector2 difference = pathFollow2D.Position - patrolPoints[currentPatrolPoint];
 
-        if(detectionTimer < detectionTimerMax)
+        if (detectionTimer < detectionTimerMax)
         {
             UpdateIdleAnimation();
             detectionTimer += delta;
-            
+
             if (detectionTimer > detectionTimerMax)
                 detectionTimer = detectionTimerMax;
         }
@@ -83,6 +87,21 @@ public class Guard : KinematicBody2D
         }
 
         lastPosition = GlobalPosition;
+    }
+
+    private void OnNoiseDetectionAreaEntered(Area2D area)
+    {
+        if (area.Name == "NoiseRadius")
+        {
+            GD.Print("Guard detected noise!");
+            isPlayerDetected = true;
+        }
+    }
+
+    private void OnNoiseDetectionAreaExited(Area2D area)
+    {
+        GD.Print("No more noise detected.");
+        isPlayerDetected = false;
     }
 
     private void PlayerDetected(float delta)

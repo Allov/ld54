@@ -34,6 +34,9 @@ public class PlayerCharacter : KinematicBody2D
     [Export]
     private float noiseReductionTime = 0.5f;
     private float idleTime = 0f;
+    public bool isMakingNoise;
+
+    public CircleShape2D noiseShape;
 
 
 
@@ -144,13 +147,16 @@ public class PlayerCharacter : KinematicBody2D
 
     private void SetNoiseRadius(float radius)
     {
-        var noiseShape = ((CollisionShape2D)GetNode("NoiseRadius/CollisionShape2D")).Shape as CircleShape2D;
+        noiseShape = ((CollisionShape2D)GetNode("NoiseRadius/CollisionShape2D")).Shape as CircleShape2D;
         if (noiseShape != null)
         {
             noiseShape.Radius = radius;
+            isMakingNoise = true;
         }
-        //@Todo changer le label pour une barre de progrès.
-        GetParent().GetNode<Label>("CanvasLayer/NoiseLabel").Text = "Noise level: " + noiseShape.Radius;
+        else 
+        {
+            isMakingNoise = false;
+        }
     }
 
 

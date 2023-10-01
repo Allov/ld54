@@ -203,7 +203,7 @@ extents = Vector2( 8, 8 )
 radius = 64.0
 
 [node name="Player" type="KinematicBody2D" groups=["player"]]
-collision_layer = 2
+collision_layer = 1026
 collision_mask = 23
 script = ExtResource( 2 )
 runSpeedMultiplier = 2.0
@@ -235,6 +235,7 @@ position = Vector2( 0, 8 )
 shape = SubResource( 2 )
 
 [node name="NoiseRadius" type="Area2D" parent="."]
+collision_layer = 1024
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="NoiseRadius"]
 shape = SubResource( 37 )

@@ -130,6 +130,7 @@ place_artifact={
 2d_physics/layer_8="Foreground"
 2d_physics/layer_9="Effects"
 2d_physics/layer_10="ExitArea"
+2d_physics/layer_11="PlayerNoise"
 
 [mono]
 

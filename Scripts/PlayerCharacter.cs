@@ -25,6 +25,16 @@ public class PlayerCharacter : KinematicBody2D
     private Node2D interactionBubbleSprite;
     private AnimationPlayer interactionBubbleAnimationPlayer;
     public bool nearAGuard, nearArtifact, nearExitZone;
+    [Export]
+    private float baseNoiseRadius = 128f; // Default noise radius when walking.
+    [Export]
+    private float noiseMultiplier = 1f;  // Default noise multiplier (e.g., different terrains or player states could adjust this).
+    [Export]
+    private float runningNoiseFactor = 2f; // Multiplier for noise when running.
+    [Export]
+    private float noiseReductionTime = 0.5f;
+    private float idleTime = 0f;
+
 
 
     // todo: array/list d'artifacts
@@ -48,6 +58,7 @@ public class PlayerCharacter : KinematicBody2D
         Vector2 inputDirection = GetInputDirection();
         HandleRunning(delta);
         MoveAndHandleAnimation(inputDirection, delta);
+        SetNoiseRadius(currentDirection, delta);
         CheckAndSetBubbleVisibility();
         HandleInteractions();
     }
@@ -64,6 +75,11 @@ public class PlayerCharacter : KinematicBody2D
             direction.x -= 1;
         if (Input.IsActionPressed("ui_right"))
             direction.x += 1;
+
+        if (direction != Vector2.Zero)
+        {
+            idleTime = 0;
+        }
 
         return direction.Normalized();
     }
@@ -102,6 +118,41 @@ public class PlayerCharacter : KinematicBody2D
             UpdateIdlingAnimation();
         }
     }
+
+    private void SetNoiseRadius(Vector2 currentDirection, float delta)
+    {
+        if (currentDirection != Vector2.Zero)
+        {
+            if (isRunning)
+            {
+                SetNoiseRadius(baseNoiseRadius * runningNoiseFactor * noiseMultiplier);
+            }
+            else
+            {
+                SetNoiseRadius(baseNoiseRadius * noiseMultiplier);
+            }
+        }
+        else
+        {
+            idleTime += delta;
+            if (idleTime > noiseReductionTime)
+            {
+                SetNoiseRadius(0);
+            }
+        }
+    }
+
+    private void SetNoiseRadius(float radius)
+    {
+        var noiseShape = ((CollisionShape2D)GetNode("NoiseRadius/CollisionShape2D")).Shape as CircleShape2D;
+        if (noiseShape != null)
+        {
+            noiseShape.Radius = radius;
+        }
+        //@Todo changer le label pour une barre de progrès.
+        GetParent().GetNode<Label>("CanvasLayer/NoiseLabel").Text = "Noise level: " + noiseShape.Radius;
+    }
+
 
     private void UpdateWalkingAnimation()
     {
@@ -155,11 +206,11 @@ public class PlayerCharacter : KinematicBody2D
 
     private void CheckAndSetBubbleVisibility()
     {
-        if (nearArtifact || nearExitZone) 
+        if (nearArtifact || nearExitZone)
         {
             interactionBubbleSprite.Visible = true;
         }
-        else 
+        else
         {
             interactionBubbleSprite.Visible = false;
         }

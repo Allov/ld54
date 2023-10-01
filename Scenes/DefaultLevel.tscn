@@ -1,5 +1,6 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=30 format=2]
 
+[ext_resource path="res://Scripts/ExitArea.cs" type="Script" id=1]
 [ext_resource path="res://Scenes/PlayerCharacter.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Assets/sprites.png" type="Texture" id=3]
 
@@ -605,6 +606,8 @@ points = PoolVector2Array( 16, 32, 0, 32, 0, 0, 16, 0 )
 } ]
 30/z_index = 0
 
+[sub_resource type="RectangleShape2D" id=33]
+
 [node name="Level" type="YSort"]
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
@@ -625,9 +628,13 @@ self_modulate = Color( 0.906738, 0.166471, 0.166471, 1 )
 position = Vector2( 240, 117 )
 collision_layer = 512
 collision_mask = 2
+script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitArea"]
 modulate = Color( 0.854902, 0.0901961, 0.0901961, 1 )
 self_modulate = Color( 0.862745, 0.196078, 0.196078, 1 )
 position = Vector2( 21, -37.25 )
-shape = SubResource( 29 )
+shape = SubResource( 33 )
+
+[connection signal="body_entered" from="ExitArea" to="ExitArea" method="OnExitAreaEntered"]
+[connection signal="body_exited" from="ExitArea" to="ExitArea" method="OnExitAreaExited"]

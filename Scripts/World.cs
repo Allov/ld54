@@ -12,6 +12,7 @@ public class World : Node
     [Export]
     public PackedScene[] packedScenes;
     Node2D currentLevel;
+    private int currentLevelIndex = 0;
 
     public override void _Ready()
     {
@@ -25,10 +26,15 @@ public class World : Node
 
     public override void _Process(float delta)
     {
-        CheckIfPlayerIsMakingNoise();
+        UpdatePlayerNoise();
+
+        if (player.endOfLevelTriggered)
+        {
+            TriggerEndLevel();
+        }
     }
 
-    private void CheckIfPlayerIsMakingNoise()
+    private void UpdatePlayerNoise()
     {
         if (player.isMakingNoise)
         {
@@ -39,9 +45,15 @@ public class World : Node
     public void TriggerEndLevel()
     {
         GD.Print("End of level triggered");
+
+        player.endOfLevelTriggered = false;
+
+
         CalculateRunScore();
         CalculateTotalScore();
         DisplayEndOfLevelUI();
+
+        LoadNextLevel();
     }
 
     private void CalculateRunScore()
@@ -79,8 +91,30 @@ public class World : Node
         {
             GD.Print("Player leaving exit zone");
             player.nearExitZone = false;
-            //@todo uninstall current scene, pack the next one
+
         }
     }
 
+    private void LoadNextLevel()
+    {
+        // Liberer le niveau actuel de la memoire
+        currentLevel.QueueFree();
+
+        // Passer au niveau suivant
+        currentLevelIndex++;
+        if (currentLevelIndex >= packedScenes.Length)
+        {
+            // Gerer ce qui se passe après le dernier niveau
+            // Pour l'instant, on retourne simplement au premier niveau. Ou un victory screen?
+            currentLevelIndex = 0;
+        }
+
+        // Instancier et charger le nouveau niveau
+        currentLevel = packedScenes[currentLevelIndex].Instance<Node2D>();
+        AddChild(currentLevel);
+
+        // Reconnecter les nodes necessaires du prochain niveau
+        Area2D exitArea = currentLevel.GetNode<Area2D>("ExitArea");
+        player = currentLevel.GetNode<PlayerCharacter>("Player");
+    }
 }

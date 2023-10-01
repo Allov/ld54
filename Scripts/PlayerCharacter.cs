@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 
 public class PlayerCharacter : KinematicBody2D
 {
@@ -37,6 +38,8 @@ public class PlayerCharacter : KinematicBody2D
     private float idleTime = 0f;
     public bool isMakingNoise;
 
+    public bool artifactScoreToCount;
+
     public CircleShape2D noiseShape;
 
     public Artifact HeldArtifact;
@@ -44,6 +47,8 @@ public class PlayerCharacter : KinematicBody2D
     public Artifact nearestArtifact;
 
     public bool endOfLevelTriggered;
+
+    public bool isDead;
 
     public override void _Ready()
     {
@@ -91,9 +96,11 @@ public class PlayerCharacter : KinematicBody2D
 
     private void OnPlacedArtifact(object sender, EventArgs e)
     {
+
         if (HeldArtifact != null)
         {
             collectedArtifacts.Add(HeldArtifact);
+            artifactScoreToCount = true;
             HeldArtifact.Collect();
             HeldArtifact = null;
         }
@@ -151,6 +158,7 @@ public class PlayerCharacter : KinematicBody2D
     private void MoveAndHandleAnimation(Vector2 direction, float delta)
     {
         if (Bag.Visible) return;
+        if (isDead) return;
 
         if (direction != Vector2.Zero) // Si ca bouge
         {
@@ -291,5 +299,8 @@ public class PlayerCharacter : KinematicBody2D
         }
     }
 
-
+    public void PlayerDetectedGameOver()
+    {
+        isDead = true;
+    }
 }

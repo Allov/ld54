@@ -9,11 +9,31 @@ public class World : Node
     private int runScore = 0;
     private Label scoreLabel;
 
+    [Export]
+    public PackedScene[] packedScenes;
+    Node2D currentLevel;
+
     public override void _Ready()
     {
-        Area2D exitArea = GetNode<Area2D>("ExitArea");
-        player = GetNode<PlayerCharacter>("Player");
-        scoreLabel = GetNode<Label>("ScoreLabel");
+        currentLevel = packedScenes[0].Instance<Node2D>();
+        AddChild(currentLevel);
+
+        Area2D exitArea = currentLevel.GetNode<Area2D>("ExitArea");
+        player = currentLevel.GetNode<PlayerCharacter>("Player");
+        scoreLabel = GetNode<CanvasLayer>("CanvasLayer").GetNode<Label>("ScoreLabel");
+    }
+
+    public override void _Process(float delta)
+    {
+        CheckIfPlayerIsMakingNoise();
+    }
+
+    private void CheckIfPlayerIsMakingNoise()
+    {
+        if (player.isMakingNoise)
+        {
+            GetNode<Label>("CanvasLayer/NoiseLabel").Text = "Noise level: " + player.noiseShape.Radius / 16;
+        }
     }
 
     public void TriggerEndLevel()
@@ -59,6 +79,7 @@ public class World : Node
         {
             GD.Print("Player leaving exit zone");
             player.nearExitZone = false;
+            //@todo uninstall current scene, pack the next one
         }
     }
 

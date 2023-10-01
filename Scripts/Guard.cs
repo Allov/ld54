@@ -1,6 +1,6 @@
 using Godot;
 using System.Collections.Generic;
-using System;
+using System.Linq;
 public class Guard : KinematicBody2D
 {
     [Export]
@@ -8,7 +8,7 @@ public class Guard : KinematicBody2D
     [Export]
     private float idleTimePerPatrolPoint = 3f;
     [Export]
-    private float detectionTimerMax = 1.0f;
+    private float detectionTimerMax = 2.0f;
 
     private AnimatedSprite animatedSprite;
     private string idleAnimation = "idle_up";
@@ -20,6 +20,9 @@ public class Guard : KinematicBody2D
     private Vector2 lastPosition;
     private bool isPlayerDetected = false;
     private float detectionTimer;
+    private Node2D questionBubbleSprite;
+    private Node2D exclamationBubbleSprite;
+    private ProgressBar detectionBar;
     public float currentIdleTimer = 0f;
 
     Area2D noiseDetectionArea;
@@ -35,6 +38,12 @@ public class Guard : KinematicBody2D
         detectionArea = GetNode<Area2D>("DetectionArea");
         detectionTimer = detectionTimerMax;
         lastPosition = GlobalPosition;
+        questionBubbleSprite = GetNode<Node2D>("QuestionBubble");
+        questionBubbleSprite.Visible = false;
+        exclamationBubbleSprite = GetNode<Node2D>("ExclamationBubble");
+        exclamationBubbleSprite.Visible = false;
+        detectionBar = GetNode<ProgressBar>("DetectionBar");
+        detectionBar.MaxValue = detectionTimerMax;
         PreparePatrolPoint();
 
         noiseDetectionArea = GetNode<Area2D>("NoiseDetection");
@@ -42,20 +51,19 @@ public class Guard : KinematicBody2D
 
     public override void _Process(float delta)
     {
-
         CheckingNoise(delta);
 
-    if (!isPlayerDetected)
-    {
-        GD.Print("Guard is patrolling."); 
-        Patrol(delta);
-    }
-    else
-    {
-        GD.Print("Guard has detected the player.");
-        PlayerDetected(delta);
-    }
+        if (!isPlayerDetected)
+            Patrol(delta);
+        else
+            PlayerDetected(delta);
 
+        Node2D[] detectedBodies = detectionArea.GetOverlappingBodies().Cast<Node2D>().ToArray();
+        foreach(Node2D body in detectedBodies)
+        {
+            if(body is PlayerCharacter player)
+                isPlayerDetected = true;
+        }
     }
 
     private void CheckingNoise(float delta)
@@ -71,7 +79,7 @@ public class Guard : KinematicBody2D
             }
             else
             {
-                isPlayerDetected=false;
+                isPlayerDetected=false; // bug
             }
         }
     }
@@ -81,13 +89,13 @@ public class Guard : KinematicBody2D
         if (body is PlayerCharacter player)
         {
             playerInNoiseArea = player;
-            GD.Print("Guard detected noise!");
 
             if (player.isRunning)
             {
                 isDetectingNoise = true;
                 if (!investigationNoise)
                 {
+                    GD.Print("Guard detected noise!");
                     isPlayerDetected = true;
                 }
             }
@@ -124,9 +132,14 @@ public class Guard : KinematicBody2D
         {
             UpdateIdleAnimation();
             detectionTimer += delta;
-
-            if (detectionTimer > detectionTimerMax)
+            
+            if (detectionTimer >= detectionTimerMax)
+            {
                 detectionTimer = detectionTimerMax;
+                HideDetectionFeedback();
+            }
+            else
+                UpdateDetectionFeedback(-delta);
         }
         else
         {
@@ -155,10 +168,37 @@ public class Guard : KinematicBody2D
         UpdateIdleAnimation();
         detectionTimer -= delta;
 
-        if (detectionTimer <= 0)
+        if (detectionTimer <= 0.0f)
         {
             detectionTimer = 0.0f;
         }
+        else
+            UpdateDetectionFeedback(delta);
+    }
+
+    private void UpdateDetectionFeedback(float delta)
+    {
+        detectionBar.Value += delta;
+        detectionBar.Visible = true;
+
+        if (detectionTimer <= detectionTimerMax / 2)
+        {
+            questionBubbleSprite.Visible = false;
+            exclamationBubbleSprite.Visible = true;
+        }
+        else
+        {
+            questionBubbleSprite.Visible = true;
+            exclamationBubbleSprite.Visible = false;
+        }
+    }
+
+    private void HideDetectionFeedback()
+    {
+        questionBubbleSprite.Visible = false;
+        exclamationBubbleSprite.Visible = false;
+        detectionBar.Value = 0.0f;
+        detectionBar.Visible = false;
     }
 
     private void UpdateIdleAnimation()
@@ -210,6 +250,7 @@ public class Guard : KinematicBody2D
     {
         if (area.IsInGroup("player"))
         {
+            GD.Print("Vision enabled");
             isPlayerDetected = true;
         }
     }

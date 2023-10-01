@@ -16,8 +16,8 @@ config/icon="res://icon.png"
 
 [display]
 
-window/size/width=384
-window/size/height=216
+window/size/width=576
+window/size/height=324
 window/size/test_width=1536
 window/size/test_height=864
 window/vsync/vsync_via_compositor=true

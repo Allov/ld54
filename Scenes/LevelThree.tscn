@@ -353,7 +353,7 @@ position = Vector2( 264, 344 )
 curve = SubResource( 13 )
 
 [node name="PathFollow2D" type="PathFollow2D" parent="Path2D7" index="0"]
-position = Vector2( 94, 45 )
+position = Vector2( 101, 47 )
 rotate = false
 lookahead = 0.001
 
@@ -364,7 +364,7 @@ position = Vector2( 497, 520 )
 curve = SubResource( 12 )
 
 [node name="PathFollow2D" type="PathFollow2D" parent="Path2D6" index="0"]
-position = Vector2( 94, 45 )
+position = Vector2( 95, 56 )
 rotate = false
 lookahead = 0.001
 

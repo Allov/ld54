@@ -244,6 +244,7 @@ energy = 0.8
 shadow_enabled = true
 
 [node name="DetectionBar" type="ProgressBar" parent="."]
+visible = false
 margin_left = -12.0
 margin_top = -23.0
 margin_right = 12.0

@@ -50,6 +50,17 @@ public class PlayerCharacter : KinematicBody2D
 
         Bag.OnPlacedArtifact += OnPlacedArtifact;
         Bag.OnDropArtifact += OnDropArtifact;
+        Bag.OnClosedBag += OnClosedBag;
+    }
+
+    private void OnClosedBag(object sender, EventArgs e)
+    {
+        if (sender is Bag bag)
+        {
+            if (bag.CurrentArtifactShape != null)
+            {
+            }
+        }
     }
 
     private void OnDropArtifact(object sender, EventArgs e)
@@ -68,9 +79,12 @@ public class PlayerCharacter : KinematicBody2D
 
     private void OnPlacedArtifact(object sender, EventArgs e)
     {
-        collectedArtifacts.Add(HeldArtifact);
-        HeldArtifact.Collect();
-        HeldArtifact = null;
+        if (HeldArtifact != null)
+        {
+            collectedArtifacts.Add(HeldArtifact);
+            HeldArtifact.Collect();
+            HeldArtifact = null;
+        }
     }
 
     public override void _PhysicsProcess(float delta)
@@ -119,7 +133,7 @@ public class PlayerCharacter : KinematicBody2D
 
     private void MoveAndHandleAnimation(Vector2 direction, float delta)
     {
-        if (HeldArtifact != null) return;
+        if (Bag.Visible) return;
 
         if (direction != Vector2.Zero) // Si ca bouge
         {
@@ -217,14 +231,17 @@ public class PlayerCharacter : KinematicBody2D
 
                 Bag.AddChild(HeldArtifact.ArtifactShape);
             }
-
-            if (nearExitZone)
+            else if (nearExitZone)
             {
                 World world = GetParent<World>();
                 if (world != null)
                 {
                     world.TriggerEndLevel();
                 }
+            }
+            else
+            {
+                Bag.Visible = true;
             }
         }
     }

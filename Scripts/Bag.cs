@@ -1,235 +1,307 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Bag : Node2D
 {
-	[Export]
-	public int TileSize = 16;
+    [Export]
+    public int TileSize = 16;
 
-	[Export]
-	public NodePath InventoryGridNode;
-	private TileMap InventoryGrid;
-	public Tile[,] Tiles;
-	private Vector2 OffsetGridCell;
-	private Vector2 OffsetGridPosition;
-	public TileMap CurrentArtifactShape;
-	private bool Placed;
-	[Export]
-	public Vector2 BoardSize = new Vector2(8, 8);
+    [Export]
+    public NodePath InventoryGridNode;
+    private TileMap InventoryGrid;
+    public Tile[,] Tiles;
+    private Vector2 OffsetGridCell;
+    private Vector2 OffsetGridPosition;
+    public TileMap CurrentArtifactShape;
+    private bool Placed;
+    [Export]
+    public Vector2 BoardSize = new Vector2(8, 8);
 
 
-	[Export]
-	public List<PackedScene> ArtifactScenes;
-	public List<TileMap> Artifacts = new List<TileMap>();
-	private Tween Tween;
+    [Export]
+    public List<PackedScene> ArtifactScenes;
+    public List<TileMap> Artifacts = new List<TileMap>();
+    private Tween Tween;
 
-	[Export]
-	public float SnapPositionSpeed = 0.128f;
-	private bool CanPlace;
-	public event EventHandler OnPlacedArtifact;
-	public event EventHandler OnDropArtifact;
+    [Export]
+    public float SnapPositionSpeed = 0.128f;
+    private bool CanPlace;
+    private bool Replacing;
 
-	public override void _Ready()
-	{
-		InventoryGrid = GetNode<TileMap>(InventoryGridNode);
+    public Vector2 OriginalPosition { get; private set; }
 
-		foreach (var artifactScene in ArtifactScenes)
-		{
-			Artifacts.Add(artifactScene.Instance() as TileMap);
-		}
+    public event EventHandler OnPlacedArtifact;
+    public event EventHandler OnDropArtifact;
+    public event EventHandler OnClosedBag;
 
-		Tiles = new Tile[(int)BoardSize.x, (int)BoardSize.y];
+    public override void _Ready()
+    {
+        InventoryGrid = GetNode<TileMap>(InventoryGridNode);
 
-		for(var x = 0; x < ((int)BoardSize.x); x++)
-		{
-			for(var y = 0; y < ((int)BoardSize.y); y++)
-			{
-				Tiles[x, y] = new Tile
-				{
-					HasShape = false
-				};
-			}
-		}
+        foreach (var artifactScene in ArtifactScenes)
+        {
+            Artifacts.Add(artifactScene.Instance() as TileMap);
+        }
 
-		// this is our (0,0) for the inventory grid.
-		OffsetGridCell = new Vector2(8, 3);
-		OffsetGridPosition = InventoryGrid.MapToWorld(OffsetGridCell);
+        Tiles = new Tile[(int)BoardSize.x, (int)BoardSize.y];
 
-		// CurrentArtifactShape = Artifacts[0];
+        for (var x = 0; x < ((int)BoardSize.x); x++)
+        {
+            for (var y = 0; y < ((int)BoardSize.y); y++)
+            {
+                Tiles[x, y] = new Tile
+                {
+                    HasShape = false
+                };
+            }
+        }
 
-		// AddChild(CurrentArtifactShape);
+        // this is our (0,0) for the inventory grid.
+        OffsetGridCell = new Vector2(8, 3);
+        OffsetGridPosition = InventoryGrid.MapToWorld(OffsetGridCell);
 
-		Tween = new Tween();
-		AddChild(Tween);
-	}
+        // CurrentArtifactShape = Artifacts[0];
 
-	public override void _Process(float delta)
-	{
-		Input.MouseMode = Visible ? Input.MouseModeEnum.Hidden : Input.MouseModeEnum.Visible;
-		if (CurrentArtifactShape != null && Input.IsActionJustPressed("rotate_artifact"))
-		{
-			RotateCurrentShape();
-		}
+        // AddChild(CurrentArtifactShape);
 
-		SnapShapeToBoard();
+        Tween = new Tween();
+        AddChild(Tween);
+    }
 
-		if (CurrentArtifactShape != null && Input.IsActionJustPressed("place_artifact"))
-		{
-			var shapeSize = GetCurrentShapeSize();
-			var placementPosition = GetGlobalMousePosition() - shapeSize;
-			if (IsValidShapePlacement(CurrentArtifactShape, placementPosition))
-			{
-				PlaceShape(CurrentArtifactShape, placementPosition - OffsetGridPosition);
-				CurrentArtifactShape = null;
-				Placed = true;
+    public override void _Process(float delta)
+    {
+		if (!Visible) return;
 
-				// CurrentArtifactShape = ArtifactScenes[0].Instance() as TileMap;
-				// AddChild(CurrentArtifactShape);
-			}
-		}
+        // Input.MouseMode = Visible ? Input.MouseModeEnum.Hidden : Input.MouseModeEnum.Visible;
+        if (CurrentArtifactShape != null && Input.IsActionJustPressed("rotate_artifact"))
+        {
+            RotateCurrentShape();
+        }
 
-		if (Visible && Input.IsActionJustPressed("ui_cancel"))
-		{
-			if (Placed)
-			{
+        SnapShapeToBoard();
+
+        if (CurrentArtifactShape != null && Input.IsActionJustPressed("place_artifact"))
+        {
+            var shapeSize = GetShapeSize(CurrentArtifactShape);
+            var placementPosition = GetGlobalMousePosition() - shapeSize;
+            if (IsValidShapePlacement(CurrentArtifactShape, placementPosition))
+            {
+                GD.Print("Placing position: ", placementPosition - OffsetGridPosition);
+
+                PlaceShape(CurrentArtifactShape, placementPosition - OffsetGridPosition);
+                CurrentArtifactShape = null;
+                Placed = true;
+            }
+        }
+        else if (Visible && CurrentArtifactShape == null && Input.IsActionJustPressed("place_artifact"))
+        {
+            PickupShape();
+        }
+
+        if (Visible && Input.IsActionJustPressed("ui_cancel"))
+        {
+            if (Placed && !Replacing)
+            {
+                Placed = false;
+                OnPlacedArtifact?.Invoke(this, EventArgs.Empty);
+                Visible = false;
+	        }
+            else if (Replacing && CurrentArtifactShape != null)
+            {
+                Replacing = false;
+                PlaceShape(CurrentArtifactShape, OriginalPosition);
+				CurrentArtifactShape.GlobalPosition = OriginalPosition + OffsetGridPosition;
+
+                GD.Print("Replacing cancel: ", OriginalPosition, CurrentArtifactShape.GlobalPosition);
+
+                CurrentArtifactShape = null;
+            }
+            else
+            {
+                CurrentArtifactShape = null;
+                OnDropArtifact?.Invoke(this, EventArgs.Empty);
+	            Visible = false;
+				Replacing = false;
 				Placed = false;
-				OnPlacedArtifact?.Invoke(this, EventArgs.Empty);
-			}
-			else
-			{
-				CurrentArtifactShape = null;
-				OnDropArtifact?.Invoke(this, EventArgs.Empty);
-			}
+            }
 
-			Visible = false;
-		}
-	}
 
-	public void PlaceShape(TileMap shape, Vector2 globalPosition)
-	{
-		var localPosition = InventoryGrid.ToLocal(globalPosition);
-		var cellPosition = new Vector2(Mathf.Round(localPosition.x / TileSize), Mathf.Round(localPosition.y / TileSize));
-		var cells = shape.GetUsedCells();
-		for (var i = 0; i < cells.Count; i++)
-		{
-			var cell = (Vector2)cells[i] + cellPosition;
-			Tiles[(int)cell.x, (int)cell.y] = new Tile { Shape = shape, HasShape = true };
-		}
-	}
+            OnClosedBag?.Invoke(this, EventArgs.Empty);
+        }
+    }
 
-	public Vector2 GetCellSnapPosition(Vector2 globalPosition)
-	{
-		var snapCell = new Vector2(-1, -1);
+    private void PickupShape()
+    {
+        if (CurrentArtifactShape != null) return;
 
-		if (IsOnBoard(InventoryGrid.ToLocal(globalPosition)))
-		{
-			var localPosition = InventoryGrid.ToLocal(globalPosition);
-			snapCell = new Vector2(Mathf.Round(localPosition.x / TileSize) * TileSize, Mathf.Round(localPosition.y / TileSize) * TileSize);
-		}
+        Replacing = false;
 
-		return ToGlobal(snapCell);
-	}
+        var mouseGlobalPosition = GetGlobalMousePosition();
+        var localPosition = InventoryGrid.ToLocal(mouseGlobalPosition);
+        var cellPosition = InventoryGrid.WorldToMap(localPosition);
 
-	private bool IsOnBoard(Vector2 localPosition)
-	{
-		return localPosition.x >= OffsetGridPosition.x && localPosition.x <= (BoardSize.x - 1) * TileSize + OffsetGridPosition.x &&
-				localPosition.y >= OffsetGridPosition.y && localPosition.y <= (BoardSize.y - 1) * TileSize + OffsetGridPosition.y;
-	}
+        cellPosition = cellPosition - OffsetGridCell;
 
-	private void SnapShapeToBoard()
-	{
-		if (CurrentArtifactShape == null) return;
+        if (cellPosition.x < 0 || cellPosition.x > BoardSize.x - 1) return;
+        if (cellPosition.y < 0 || cellPosition.y > BoardSize.y - 1) return;
 
-		var mousePosition = GetGlobalMousePosition();
+        var selectedTile = Tiles[(int)cellPosition.x, (int)cellPosition.y];
 
-		var shapeSize = GetCurrentShapeSize();
+        var selectedShape = selectedTile.Shape;
 
-		var snapPosition = GetCellSnapPosition(mousePosition - shapeSize);
-		if (IsValidShapePlacement(CurrentArtifactShape, snapPosition))
-		{
-			CurrentArtifactShape.Modulate = Colors.White;
+        if (selectedShape == null)
+        {
+            return;
+        }
 
-			Tween.InterpolateProperty(CurrentArtifactShape, "global_position", null, snapPosition, SnapPositionSpeed, Tween.TransitionType.Quad, Tween.EaseType.Out);
-			Tween.Start();
-			CanPlace = true;
-		}
-		else
-		{
-			CurrentArtifactShape.Modulate = Colors.Red;
-			CurrentArtifactShape.GlobalPosition = mousePosition - shapeSize;
-			CanPlace = false;
-		}
-	}
+        OriginalPosition = selectedShape.GlobalPosition - OffsetGridPosition;
+        GD.Print("Replacing start: ", OriginalPosition);
+        Replacing = true;
 
-	public bool IsValidShapePlacement(TileMap tileMap, Vector2 globalPosition)
-	{
-		var localPosition = InventoryGrid.ToLocal(globalPosition);
-		var cellPosition = new Vector2(Mathf.Round(localPosition.x / TileSize), Mathf.Round(localPosition.y / TileSize));
-		var cells = tileMap.GetUsedCells();
-		for (var i = 0; i < cells.Count; i++)
-		{
-			var cell = (Vector2)cells[i] + cellPosition;
+        for (var x = 0; x < BoardSize.x; x++)
+        {
+            for (var y = 0; y < BoardSize.y; y++)
+            {
+                var tile = Tiles[x, y];
 
-			if (
-				(cell.x < OffsetGridCell.x || cell.x > BoardSize.x + OffsetGridCell.x - 1) ||
-				(cell.y < OffsetGridCell.y || cell.y > BoardSize.y + OffsetGridCell.y - 1)
-			   )
-			{
-				return false;
-			}
+                if (tile.Shape == selectedShape)
+                {
+                    tile.HasShape = false;
+                    tile.Shape = null;
+                }
+            }
+        }
 
-			// GD.Print((int)(cell.x - OffsetGridCell.x), (int)(cell.y - OffsetGridCell.y));
+        CurrentArtifactShape = selectedShape;
+    }
 
-			if (Tiles[(int)(cell.x - OffsetGridCell.x), (int)(cell.y - OffsetGridCell.y)].HasShape)
-			{
-				return false;
-			}
-		}
+    public void PlaceShape(TileMap shape, Vector2 globalPosition)
+    {
+        var localPosition = InventoryGrid.ToLocal(globalPosition);
+        var cellPosition = new Vector2(Mathf.Round(localPosition.x / TileSize), Mathf.Round(localPosition.y / TileSize));
+        var cells = shape.GetUsedCells();
+        for (var i = 0; i < cells.Count; i++)
+        {
+            var cell = (Vector2)cells[i] + cellPosition;
+            Tiles[(int)cell.x, (int)cell.y] = new Tile { Shape = shape, HasShape = true };
+        }
+    }
 
-		return true;
-	}
+    public Vector2 GetCellSnapPosition(Vector2 globalPosition)
+    {
+        var snapCell = new Vector2(-1, -1);
 
-	private Vector2 GetCurrentShapeSize()
-	{
-		var cells = CurrentArtifactShape.GetUsedCells();
-		var maxX = 0;
-		var maxY = 0;
-		var minX = 0;
-		var minY = 0;
+        if (IsOnBoard(InventoryGrid.ToLocal(globalPosition)))
+        {
+            var localPosition = InventoryGrid.ToLocal(globalPosition);
+            snapCell = new Vector2(Mathf.Round(localPosition.x / TileSize) * TileSize, Mathf.Round(localPosition.y / TileSize) * TileSize);
+        }
 
-		foreach (Vector2 cell in cells)
-		{
-			if (cell.x < minX)
-				minX = (int)cell.x;
-			if (cell.x > maxX)
-				maxX = (int)cell.x;
-			if (cell.y < minY)
-				minY = (int)cell.y;
-			if (cell.y > maxY)
-				maxY = (int)cell.y;
-		}
+        return ToGlobal(snapCell);
+    }
 
-		var shapeSize = new Vector2((maxX - minX) * TileSize, (maxY - minY) * TileSize) * .5f;
-		return shapeSize;
-	}
+    private bool IsOnBoard(Vector2 localPosition)
+    {
+        return localPosition.x >= OffsetGridPosition.x && localPosition.x <= (BoardSize.x - 1) * TileSize + OffsetGridPosition.x &&
+                localPosition.y >= OffsetGridPosition.y && localPosition.y <= (BoardSize.y - 1) * TileSize + OffsetGridPosition.y;
+    }
 
-	public void RotateCurrentShape()
-	{
-		var cells = CurrentArtifactShape.GetUsedCells();
-		CurrentArtifactShape.Clear();
-		for (var i = 0; i < cells.Count; i++)
-		{
-			var pos = (Vector2)cells[i];
-			var newPos = new Vector2((-(int)pos.y), (int)pos.x);
-			CurrentArtifactShape.SetCellv(newPos, 0);
-		}
-		CurrentArtifactShape.UpdateBitmaskRegion();
-	}
+    private void SnapShapeToBoard()
+    {
+        if (CurrentArtifactShape == null) return;
+
+        var mousePosition = GetGlobalMousePosition();
+
+        var shapeSize = GetShapeSize(CurrentArtifactShape);
+
+        var snapPosition = GetCellSnapPosition(mousePosition - shapeSize);
+        if (IsValidShapePlacement(CurrentArtifactShape, snapPosition))
+        {
+            CurrentArtifactShape.Modulate = Colors.White;
+			CurrentArtifactShape.GlobalPosition = snapPosition;
+
+            // Tween.InterpolateProperty(CurrentArtifactShape, "global_position", null, snapPosition, SnapPositionSpeed, Tween.TransitionType.Quad, Tween.EaseType.Out);
+            // Tween.Start();
+            CanPlace = true;
+        }
+        else
+        {
+            CurrentArtifactShape.Modulate = Colors.Red;
+            CurrentArtifactShape.GlobalPosition = mousePosition - shapeSize;
+            CanPlace = false;
+        }
+    }
+
+    public bool IsValidShapePlacement(TileMap tileMap, Vector2 globalPosition)
+    {
+        var localPosition = InventoryGrid.ToLocal(globalPosition);
+        var cellPosition = new Vector2(Mathf.Round(localPosition.x / TileSize), Mathf.Round(localPosition.y / TileSize));
+        var cells = tileMap.GetUsedCells();
+        for (var i = 0; i < cells.Count; i++)
+        {
+            var cell = (Vector2)cells[i] + cellPosition;
+
+            if (
+                (cell.x < OffsetGridCell.x || cell.x > BoardSize.x + OffsetGridCell.x - 1) ||
+                (cell.y < OffsetGridCell.y || cell.y > BoardSize.y + OffsetGridCell.y - 1)
+               )
+            {
+                return false;
+            }
+
+            // GD.Print((int)(cell.x - OffsetGridCell.x), (int)(cell.y - OffsetGridCell.y));
+
+            if (Tiles[(int)(cell.x - OffsetGridCell.x), (int)(cell.y - OffsetGridCell.y)].HasShape)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private Vector2 GetShapeSize(TileMap shape)
+    {
+        var cells = shape.GetUsedCells();
+        var maxX = 0;
+        var maxY = 0;
+        var minX = 0;
+        var minY = 0;
+
+        foreach (Vector2 cell in cells)
+        {
+            if (cell.x < minX)
+                minX = (int)cell.x;
+            if (cell.x > maxX)
+                maxX = (int)cell.x;
+            if (cell.y < minY)
+                minY = (int)cell.y;
+            if (cell.y > maxY)
+                maxY = (int)cell.y;
+        }
+
+        var shapeSize = new Vector2((maxX - minX) * TileSize, (maxY - minY) * TileSize) * .5f;
+        return shapeSize;
+    }
+
+    public void RotateCurrentShape()
+    {
+        var cells = CurrentArtifactShape.GetUsedCells();
+        CurrentArtifactShape.Clear();
+        for (var i = 0; i < cells.Count; i++)
+        {
+            var pos = (Vector2)cells[i];
+            var newPos = new Vector2((-(int)pos.y), (int)pos.x);
+            CurrentArtifactShape.SetCellv(newPos, 0);
+        }
+        CurrentArtifactShape.UpdateBitmaskRegion();
+    }
 }
 
 public class Tile
 {
-	public TileMap Shape;
-	public bool HasShape;
+    public TileMap Shape;
+    public bool HasShape;
 }

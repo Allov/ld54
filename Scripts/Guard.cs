@@ -16,7 +16,7 @@ public class Guard : KinematicBody2D
     private PathFollow2D pathFollow2D;
     private Area2D detectionArea;
     private List<Vector2> patrolPoints = new List<Vector2>();
-    private int currentPatrolPoint = 1;
+    private int currentPatrolPoint = 0;
     private Vector2 lastPosition;
     private bool isPlayerDetected = false;
     private float detectionTimer;
@@ -133,6 +133,7 @@ public class Guard : KinematicBody2D
         }
 
         patrolPoints.RemoveAt(patrolPoints.Count - 1);
+        currentPatrolPoint = (currentPatrolPoint + 1) % patrolPoints.Count;
     }
 
     private void Patrol(float delta)

@@ -11,7 +11,7 @@ _data = {
 [node name="Level" instance=ExtResource( 2 )]
 
 [node name="Player" parent="." index="0"]
-position = Vector2( 481, 262 )
+position = Vector2( 232, 160 )
 
 [node name="Tiles" parent="." index="1"]
 show_collision = true
@@ -26,3 +26,5 @@ rotate = false
 lookahead = 0.001
 
 [node name="Guard" parent="Path2D/PathFollow2D" index="0" instance=ExtResource( 1 )]
+
+[editable path="Path2D/PathFollow2D/Guard"]

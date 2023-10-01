@@ -71,6 +71,18 @@ public class PlayerCharacter : KinematicBody2D
         Bag.OnClosedBag += OnClosedBag;
     }
 
+    public override void _Process(float delta)
+    {
+
+        var s = 0.7f;
+        if (Bag.Visible)
+        {
+            s = 0.26f;
+        }
+        var sm = GetNode<ColorRect>("CanvasLayer/ColorRect").Material as ShaderMaterial;
+        sm.SetShaderParam("SCALE", s);
+    }
+
     private void OnClosedBag(object sender, EventArgs e)
     {
         if (sender is Bag bag)

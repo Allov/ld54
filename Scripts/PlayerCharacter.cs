@@ -6,6 +6,7 @@ public class PlayerCharacter : KinematicBody2D
 {
     [Export]
     public float baseMovementSpeed = 50f;
+    private Bag Bag;
     private float calculatedMovementSpeed;
     [Export]
     private float runSpeedMultiplier = 1.25f; // Un multiplicateur à la vistesse de base au cas où des items biendrait jouer sur le base factor.
@@ -38,6 +39,9 @@ public class PlayerCharacter : KinematicBody2D
 
     public CircleShape2D noiseShape;
 
+    public Artifact HeldArtifact;
+
+    public Artifact nearestArtifact;
 
 
     // todo: array/list d'artifacts
@@ -48,12 +52,38 @@ public class PlayerCharacter : KinematicBody2D
         interactionBubbleAnimationPlayer = GetNode<AnimationPlayer>("AnimationBubble");
         interactionBubbleSprite = GetNode<Node2D>("InteractionBubble");
         interactionBubbleSprite.Visible = false;
+        Bag = GetNode<Bag>("Bag");
+
 
         calculatedMovementSpeed = baseMovementSpeed;
         currentStamina = maxStamina;
         nearAGuard = false;
         nearArtifact = false;
         nearExitZone = false;
+
+        Bag.OnPlacedArtifact += OnPlacedArtifact;
+        Bag.OnDropArtifact += OnDropArtifact;
+    }
+
+    private void OnDropArtifact(object sender, EventArgs e)
+    {
+        if (HeldArtifact != null)
+        {
+            Bag.RemoveChild(HeldArtifact.ArtifactShape);
+            HeldArtifact.AddChild(HeldArtifact.ArtifactShape);
+            HeldArtifact.ArtifactShape.Visible = false;
+            nearArtifact = true;
+            nearestArtifact = HeldArtifact;
+
+            HeldArtifact = null;
+        }
+    }
+
+    private void OnPlacedArtifact(object sender, EventArgs e)
+    {
+        collectedArtifacts.Add(HeldArtifact);
+        HeldArtifact.Collect();
+        HeldArtifact = null;
     }
 
     public override void _PhysicsProcess(float delta)
@@ -64,6 +94,7 @@ public class PlayerCharacter : KinematicBody2D
         SetNoiseRadius(currentDirection, delta);
         CheckAndSetBubbleVisibility();
         HandleInteractions();
+
     }
 
     private Vector2 GetInputDirection()
@@ -107,6 +138,8 @@ public class PlayerCharacter : KinematicBody2D
 
     private void MoveAndHandleAnimation(Vector2 direction, float delta)
     {
+        if (HeldArtifact != null) return;
+
         if (direction != Vector2.Zero) // Si ca bouge
         {
             currentDirection = direction; // Update de la directiton
@@ -228,6 +261,20 @@ public class PlayerCharacter : KinematicBody2D
         {
             GD.Print("Interaction Key Pressed!");
 
+            if (nearestArtifact != null)
+            {
+                HeldArtifact = nearestArtifact;
+                nearestArtifact = null;
+                nearArtifact = false;
+
+                HeldArtifact.RemoveChild(HeldArtifact.ArtifactShape);
+                Bag.CurrentArtifactShape = HeldArtifact.ArtifactShape;
+                Bag.Visible = true;
+                HeldArtifact.ArtifactShape.Visible = true;
+
+                Bag.AddChild(HeldArtifact.ArtifactShape);
+            }
+
             if (nearExitZone)
             {
                 World world = GetParent<World>();
@@ -250,12 +297,23 @@ public class PlayerCharacter : KinematicBody2D
         }
     }
 
+    public void PickUp(Artifact artifact)
+    {
+        HeldArtifact = artifact;
+    }
+
+    public void DropHeld()
+    {
+        HeldArtifact?.PanicDropThisArtifact(this.GlobalPosition);
+        HeldArtifact = null;
+    }
+
     // C'est cette méthode qu'on doit call à partir du script de UI du sac.
     public void DropArtifact(Artifact artifactToDrop)
     {
         if (collectedArtifacts.Count > 0)
         {
-            artifactToDrop.PanicDropThisArtifact(this.Position);
+            artifactToDrop.PanicDropThisArtifact(this.GlobalPosition);
             collectedArtifacts.Remove(artifactToDrop); // On enleve de la liste 'logique'
         }
     }

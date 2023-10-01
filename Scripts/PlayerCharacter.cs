@@ -77,7 +77,7 @@ public class PlayerCharacter : KinematicBody2D
         var s = 0.7f;
         if (Bag.Visible)
         {
-            s = 0.26f;
+            s = 0.3f;
         }
         var sm = GetNode<ColorRect>("CanvasLayer/ColorRect").Material as ShaderMaterial;
         sm.SetShaderParam("SCALE", s);

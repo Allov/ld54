@@ -1,0 +1,23 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/437649__dersuperanton__huh-eh-man.wav-cc1d07bd1cca3f1b38a73c3558b2aa94.sample"
+
+[deps]
+
+source_file="res://Assets/437649__dersuperanton__huh-eh-man.wav"
+dest_files=[ "res://.import/437649__dersuperanton__huh-eh-man.wav-cc1d07bd1cca3f1b38a73c3558b2aa94.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public class World : Node
@@ -18,9 +19,22 @@ public class World : Node
 
     private Label gameOverScoreLabel;
     private Button restartButton;
+    private Timer gameTimer; // Reference to our Timer node
+    private Label timerLabel; // Reference to our Timer label
+
+    Dictionary<string, bool> busMuteStates = new Dictionary<string, bool>
+    {
+        { "Music", false },
+        { "SFX", false }
+    };
 
     public override void _Ready()
     {
+
+        HSlider musicVolumeSlider = GetNode<HSlider>("OptionMenu/MusicSlider");
+        musicVolumeSlider.Connect("value_changed", this, "OnMusicVolumeSliderValueChanged");
+
+
         gameOverCanvas = GetNode<CanvasLayer>("GameOverCanvas");
         gameOverScoreLabel = GetNode<Label>("GameOverCanvas/CenterContainer/VBoxContainer/GameOverScoreLabel");
         restartButton = GetNode<Button>("GameOverCanvas/CenterContainer/VBoxContainer/RestartButton");
@@ -33,6 +47,15 @@ public class World : Node
         Area2D exitArea = currentLevel.GetNode<Area2D>("ExitArea");
         player = currentLevel.GetNode<PlayerCharacter>("Player");
         scoreLabel = GetNode<CanvasLayer>("CanvasLayer").GetNode<Label>("ScoreLabel");
+
+        gameTimer = new Timer();
+        this.AddChild(gameTimer);
+        gameTimer.WaitTime = 120;
+        gameTimer.OneShot = true;
+        gameTimer.Connect("timeout", this, "OnGameTimerTimeout");
+        timerLabel = GetNode<Label>("CanvasLayer/Timer");
+
+        StartGameTimer();
     }
 
     public override void _Process(float delta)
@@ -41,7 +64,7 @@ public class World : Node
         {
             CalculateArtifactsScore();
             UpdateTotalScoreUI();
-            player.artifactScoreToCount = false;  // Reset the flag
+            player.artifactScoreToCount = false;
         }
 
         UpdatePlayerNoise();
@@ -56,6 +79,14 @@ public class World : Node
             // player should be 'fixed' and not being able to move --> géré dans player class
             DisplayGameOver();
         }
+
+        timerLabel.Text = $"Time: {Math.Ceiling(gameTimer.TimeLeft)}s";
+    }
+
+    private void OnGameTimerTimeout()
+    {
+        player.isDead = true;
+        DisplayGameOver();
     }
 
     private void UpdatePlayerNoise()
@@ -80,14 +111,14 @@ public class World : Node
         LoadNextLevel();
     }
 
-        private void CalculateArtifactsScore()
+    private void CalculateArtifactsScore()
     {
         foreach (Artifact artifact in player.collectedArtifacts)
         {
             if (!artifact.isScoreCounted)
             {
                 totalScore += artifact.artifactValue;
-                artifact.isScoreCounted = true; 
+                artifact.isScoreCounted = true;
             }
         }
     }
@@ -145,21 +176,55 @@ public class World : Node
         // Reconnecter les nodes necessaires du prochain niveau
         Area2D exitArea = currentLevel.GetNode<Area2D>("ExitArea");
         player = currentLevel.GetNode<PlayerCharacter>("Player");
+        scoreLabel.Show();
+        StartGameTimer();
+    }
+
+    private void StartGameTimer()
+    {
+        gameTimer.Stop();
+        gameTimer.Start();
     }
 
     private void DisplayGameOver()
     {
         gameOverScoreLabel.Text = "Score: " + totalScore.ToString();
         gameOverCanvas.Show();
+        scoreLabel.Hide();
     }
 
     private void OnRestartButtonPressed()
     {
-        // todo
         totalScore = 0;
         runScore = 0;
+        UpdateTotalScoreUI();  // Add this line to update the score UI
         gameOverCanvas.Hide();
         currentLevelIndex = -1;
         LoadNextLevel();
+    }
+
+    public void ToggleMuteBus(string busName)
+    {
+        if (busMuteStates.ContainsKey(busName))
+        {
+            busMuteStates[busName] = !busMuteStates[busName];
+            AudioServer.SetBusMute(AudioServer.GetBusIndex(busName), busMuteStates[busName]);
+        }
+    }
+
+    public void OnMusicVolumeSliderValueChanged(float percentageValue)
+    {
+        // Map le pourcentage (0-100) en dB (-80 à 6)
+        float dBVolume = MapPercentageToDb(percentageValue);
+
+        AudioServer.SetBusVolumeDb(AudioServer.GetBusIndex("Music"), dBVolume);
+    }
+
+    private float MapPercentageToDb(float percentage)
+    {
+        float minValue = -80.0f;
+        float maxValue = 6.0f;
+
+        return (1 - percentage / 100.0f) * minValue + (percentage / 100.0f) * maxValue;
     }
 }

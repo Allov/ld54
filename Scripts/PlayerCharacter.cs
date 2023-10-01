@@ -19,6 +19,7 @@ public class PlayerCharacter : KinematicBody2D
     private float staminaRecoveryRate = 5f; // Combien vite la stamina revient quand joueur ne court pas.
     private float currentStamina;
     public bool isRunning = false;
+    public bool isMoving = false;
     private AnimatedSprite playerAnimatedSprite;
     private Vector2 currentDirection = Vector2.Zero;
     private int detectionIncrement = 0;
@@ -113,7 +114,6 @@ public class PlayerCharacter : KinematicBody2D
         MoveAndHandleAnimation(inputDirection, delta);
         CheckAndSetBubbleVisibility();
         HandleInteractions();
-
     }
 
     private Vector2 GetInputDirection()
@@ -162,6 +162,7 @@ public class PlayerCharacter : KinematicBody2D
 
         if (direction != Vector2.Zero) // Si ca bouge
         {
+            isMoving = true;
             currentDirection = direction; // Update de la directiton
             MoveAndSlide(direction * calculatedMovementSpeed);
             PlayerState = "Walking";
@@ -169,6 +170,7 @@ public class PlayerCharacter : KinematicBody2D
         }
         else
         {
+            isMoving = false;
             // Pas d'input I guess
             PlayerState = "Idle";
             UpdateIdlingAnimation();

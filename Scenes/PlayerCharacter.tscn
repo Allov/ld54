@@ -198,7 +198,7 @@ tracks/0/keys = {
 }
 
 [sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 5, 2.5 )
+extents = Vector2( 8, 8 )
 
 [node name="Player" type="KinematicBody2D" groups=["player"]]
 collision_layer = 2
@@ -229,7 +229,7 @@ limit_smoothed = true
 smoothing_enabled = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( 0, 12.5 )
+position = Vector2( 0, 8 )
 shape = SubResource( 2 )
 
 [node name="Bag" parent="." instance=ExtResource( 4 )]

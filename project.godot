@@ -11,7 +11,7 @@ config_version=4
 [application]
 
 config/name="ld54"
-run/main_scene="res://Scenes/LevelThree.tscn"
+run/main_scene="res://Scenes/World.tscn"
 config/icon="res://icon.png"
 
 [display]

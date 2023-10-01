@@ -1,8 +1,9 @@
-[gd_scene load_steps=40 format=2]
+[gd_scene load_steps=41 format=2]
 
 [ext_resource path="res://Assets/sprites.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/PlayerCharacter.cs" type="Script" id=2]
 [ext_resource path="res://Assets/animations.png" type="Texture" id=3]
+[ext_resource path="res://Scenes/Bag.tscn" type="PackedScene" id=4]
 
 [sub_resource type="AtlasTexture" id=19]
 atlas = ExtResource( 3 )
@@ -230,3 +231,7 @@ smoothing_enabled = true
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( 0, 8 )
 shape = SubResource( 2 )
+
+[node name="Bag" parent="." instance=ExtResource( 4 )]
+visible = false
+position = Vector2( -192, -114 )

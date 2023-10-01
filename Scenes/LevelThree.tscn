@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Scenes/GuardCharacter.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scenes/DefaultLevel.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/Artifact.tscn" type="PackedScene" id=3]
+
+[sub_resource type="Curve2D" id=1]
+_data = {
+"points": PoolVector2Array( 0, 0, 0, 0, 96, 48, 0, 0, 0, 0, 280, 48, 0, 0, 0, 0, 280, 184, 0, 0, 0, 0, 96, 184, 0, 0, 0, 0, 96, 48 )
+}
+
+[node name="Level" instance=ExtResource( 2 )]
+
+[node name="Artifact" parent="." index="0" instance=ExtResource( 3 )]
+position = Vector2( 184, 112 )
+
+[node name="CollisionShape2D" parent="Artifact" index="1"]
+position = Vector2( 0, 16 )
+
+[node name="Artifact2" parent="." index="1" instance=ExtResource( 3 )]
+position = Vector2( 384, 112 )
+
+[node name="CollisionShape2D" parent="Artifact2" index="1"]
+position = Vector2( 0, 16 )
+
+[node name="Player" parent="." index="2"]
+position = Vector2( 481, 262 )
+
+[node name="Tiles" parent="." index="3"]
+show_collision = true
+collision_mask = 3
+
+[node name="Path2D" type="Path2D" parent="." index="4"]
+curve = SubResource( 1 )
+
+[node name="PathFollow2D" type="PathFollow2D" parent="Path2D" index="0"]
+position = Vector2( 96, 48 )
+rotate = false
+lookahead = 0.001
+
+[node name="Guard" parent="Path2D/PathFollow2D" index="0" instance=ExtResource( 1 )]
+
+[editable path="Artifact"]
+[editable path="Artifact2"]

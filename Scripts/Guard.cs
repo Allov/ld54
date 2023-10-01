@@ -41,19 +41,19 @@ public class Guard : KinematicBody2D
             PlayerDetected(delta);
     }
 
-    private void PreparePatrolPoint()
-    {
-        for (int i = 0; i < path2D.Curve.GetPointCount(); i++)
-        {
-            patrolPoints.Add(path2D.Curve.GetPointPosition(i));
-        }
+	private void PreparePatrolPoint()
+	{
+		for (int i = 0; i < path2D.Curve.GetPointCount(); i++)
+		{
+			patrolPoints.Add(path2D.Curve.GetPointPosition(i));
+		}
 
-        patrolPoints.RemoveAt(patrolPoints.Count - 1);
-    }
+		patrolPoints.RemoveAt(patrolPoints.Count - 1);
+	}
 
-    private void Patrol(float delta)
-    {
-        Vector2 difference = pathFollow2D.Position - patrolPoints[currentPatrolPoint];
+	private void Patrol(float delta)
+	{
+		Vector2 difference = pathFollow2D.Position - patrolPoints[currentPatrolPoint];
 
         if(detectionTimer < detectionTimerMax)
         {
@@ -82,8 +82,8 @@ public class Guard : KinematicBody2D
             }
         }
 
-        lastPosition = GlobalPosition;
-    }
+		lastPosition = GlobalPosition;
+	}
 
     private void PlayerDetected(float delta)
     {
@@ -100,9 +100,9 @@ public class Guard : KinematicBody2D
     {
         animatedSprite.Animation = idleAnimation;
 
-        if (!animatedSprite.Playing)
-            animatedSprite.Play();
-    }
+		if (!animatedSprite.Playing)
+			animatedSprite.Play();
+	}
 
     private void UpdateWalkingAnimation(Vector2 direction)
     {
@@ -133,9 +133,9 @@ public class Guard : KinematicBody2D
             idleAnimation = "idle_down";
         }
 
-        if (!animatedSprite.Playing)
-            animatedSprite.Play();
-    }
+		if (!animatedSprite.Playing)
+			animatedSprite.Play();
+	}
 
     private void OnDetectionAreaEntered(Node2D area)
     {

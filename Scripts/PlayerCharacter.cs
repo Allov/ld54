@@ -43,8 +43,7 @@ public class PlayerCharacter : KinematicBody2D
 
     public Artifact nearestArtifact;
 
-
-    // todo: array/list d'artifacts
+    public bool endOfLevelTriggered;
 
     public override void _Ready()
     {
@@ -238,11 +237,7 @@ public class PlayerCharacter : KinematicBody2D
 
             if (nearExitZone)
             {
-                World world = GetParent<World>();
-                if (world != null)
-                {
-                    world.TriggerEndLevel();
-                }
+                endOfLevelTriggered = true;
             }
         }
     }
@@ -278,4 +273,6 @@ public class PlayerCharacter : KinematicBody2D
             collectedArtifacts.Remove(artifactToDrop); // On enleve de la liste 'logique'
         }
     }
+
+
 }

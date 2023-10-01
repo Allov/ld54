@@ -14,10 +14,16 @@ public class Artifact : Area2D
     
     [Export]
     public PackedScene ArtifactShapeScene;
+    public TileMap ArtifactShape;
 
     public override void _Ready()
     {
-        
+        ArtifactShape = GetNode<TileMap>("ArtifactShape");
+    }
+
+    public override void _Process(float delta)
+    {
+        GetNode<CollisionShape2D>("StaticBody2D/CollisionShape2D").Disabled = isCollected;
     }
 
     public void Collect()
@@ -44,6 +50,24 @@ public class Artifact : Area2D
         this.Show();
         isCollected = false;
         GD.Print($"Artifact dropped at: {playerPosition}");
+    }
+
+    public void _on_Artifact_body_entered(KinematicBody2D body)
+    {
+        if (!isCollected && body is PlayerCharacter player)
+        {
+            player.nearArtifact = true;
+            player.nearestArtifact = this;
+        }
+    }
+
+    public void _on_Artifact_body_exited(KinematicBody2D body)
+    {
+        if (!isCollected && body is PlayerCharacter player)
+        {
+            player.nearArtifact = false;
+            player.nearestArtifact = null;
+        }
     }
 }
 

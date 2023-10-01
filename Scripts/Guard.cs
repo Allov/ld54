@@ -58,17 +58,23 @@ public class Guard : KinematicBody2D
         // Check vision detection
         Node2D[] detectedBodies = detectionArea.GetOverlappingBodies().Cast<Node2D>().ToArray();
         isPlayerDetectedByVision = false; // Reset vision detection for this frame
-        
+
         foreach (Node2D body in detectedBodies)
         {
             if (body is PlayerCharacter player)
-                isPlayerDetectedByVision = true;
+            {
+                var spaceState = GetWorld2d().DirectSpaceState;
+                Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, player.GlobalPosition, new Godot.Collections.Array { this }, CollisionMask);
+
+                if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+                    isPlayerDetectedByVision = true;
+            }
         }
 
         // update player detected flag
         isPlayerDetected = isPlayerDetectedByNoise || isPlayerDetectedByVision;
 
-        // on reagi/ajuste le status de detection
+        // on reagit/ajuste le status de detection
         if (!isPlayerDetected)
             Patrol(delta);
         else
@@ -256,8 +262,11 @@ public class Guard : KinematicBody2D
     {
         if (area.IsInGroup("player"))
         {
-            GD.Print("Vision enabled");
-            isPlayerDetectedByVision = true;
+            var spaceState = GetWorld2d().DirectSpaceState;
+            Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, area.GlobalPosition, new Godot.Collections.Array { this }, CollisionMask);
+
+            if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+                isPlayerDetectedByVision = true;
         }
     }
 

@@ -212,6 +212,8 @@ radius = 127.504
 collision_mask = 1030
 script = ExtResource( 2 )
 moveSpeed = 17.0
+idleTimePerPatrolPoint = 2.0
+detectionTimerMax = 1.4
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 material = SubResource( 1 )

@@ -53,7 +53,13 @@ public class Guard : KinematicBody2D
         foreach(Node2D body in detectedBodies)
         {
             if(body is PlayerCharacter player)
-                isPlayerDetected = true;
+            {
+                var spaceState = GetWorld2d().DirectSpaceState;
+                Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, player.GlobalPosition, new Godot.Collections.Array{this}, CollisionMask);
+
+                if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+                    isPlayerDetected = true;
+            }
         }
     }
 
@@ -193,7 +199,11 @@ public class Guard : KinematicBody2D
     {
         if (area.IsInGroup("player"))
         {
-            isPlayerDetected = true;
+            var spaceState = GetWorld2d().DirectSpaceState;
+            Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, area.GlobalPosition, new Godot.Collections.Array{this}, CollisionMask);
+
+            if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+                isPlayerDetected = true;
         }
     }
 

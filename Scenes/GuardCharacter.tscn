@@ -227,5 +227,16 @@ offset = Vector2( -0.534278, 28.6709 )
 energy = 0.8
 shadow_enabled = true
 
+[node name="DetectionBar" type="ProgressBar" parent="."]
+visible = false
+modulate = Color( 1, 0.607843, 0.607843, 1 )
+margin_left = -12.0
+margin_top = -23.0
+margin_right = 12.0
+margin_bottom = -16.0
+max_value = 10.0
+step = 0.0
+percent_visible = false
+
 [connection signal="body_entered" from="DetectionArea" to="." method="OnDetectionAreaEntered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="OnDetectionAreaExited"]

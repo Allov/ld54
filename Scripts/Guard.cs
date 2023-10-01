@@ -22,6 +22,7 @@ public class Guard : KinematicBody2D
     private float detectionTimer;
     private Node2D questionBubbleSprite;
     private Node2D exclamationBubbleSprite;
+    private ProgressBar detectionBar;
     public float currentIdleTimer = 0f;
 
     public override void _Ready()
@@ -36,6 +37,8 @@ public class Guard : KinematicBody2D
         questionBubbleSprite.Visible = false;
         exclamationBubbleSprite = GetNode<Node2D>("ExclamationBubble");
         exclamationBubbleSprite.Visible = false;
+        detectionBar = GetNode<ProgressBar>("DetectionBar");
+        detectionBar.MaxValue = detectionTimerMax;
         PreparePatrolPoint();
     }
 
@@ -76,19 +79,10 @@ public class Guard : KinematicBody2D
             if (detectionTimer >= detectionTimerMax)
             {
                 detectionTimer = detectionTimerMax;
-                questionBubbleSprite.Visible = false;
-                exclamationBubbleSprite.Visible = false;
-            }
-            else if (detectionTimer <= detectionTimerMax / 2)
-            {
-                questionBubbleSprite.Visible = false;
-                exclamationBubbleSprite.Visible = true;
+                HideDetectionFeedback();
             }
             else
-            {
-                questionBubbleSprite.Visible = true;
-                exclamationBubbleSprite.Visible = false;
-            }
+                UpdateDetectionFeedback(-delta);
         }
         else
         {
@@ -121,7 +115,16 @@ public class Guard : KinematicBody2D
         {
             detectionTimer = 0.0f;
         }
-        else if (detectionTimer <= detectionTimerMax / 2)
+        else
+            UpdateDetectionFeedback(delta);
+    }
+
+    private void UpdateDetectionFeedback(float delta)
+    {
+        detectionBar.Value += delta;
+        detectionBar.Visible = true;
+
+        if (detectionTimer <= detectionTimerMax / 2)
         {
             questionBubbleSprite.Visible = false;
             exclamationBubbleSprite.Visible = true;
@@ -131,6 +134,14 @@ public class Guard : KinematicBody2D
             questionBubbleSprite.Visible = true;
             exclamationBubbleSprite.Visible = false;
         }
+    }
+
+    private void HideDetectionFeedback()
+    {
+        questionBubbleSprite.Visible = false;
+        exclamationBubbleSprite.Visible = false;
+        detectionBar.Value = 0.0f;
+        detectionBar.Visible = false;
     }
 
     private void UpdateIdleAnimation()

@@ -186,6 +186,8 @@ public class Guard : KinematicBody2D
         }
         else
             UpdateDetectionFeedback(delta);
+
+        GetNode<AudioStreamPlayer2D>("AudioStreamPlayer2D").Play();
     }
 
     private void UpdateDetectionFeedback(float delta)

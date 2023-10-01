@@ -47,7 +47,6 @@ public class Guard : KinematicBody2D
         detectionBar = GetNode<ProgressBar>("DetectionBar");
         detectionBar.MaxValue = detectionTimerMax;
         PreparePatrolPoint();
-
         noiseDetectionArea = GetNode<Area2D>("NoiseDetection");
     }
 
@@ -183,7 +182,7 @@ public class Guard : KinematicBody2D
 
         if (detectionTimer <= 0.0f)
         {
-            detectionTimer = 0.0f;
+            playerInNoiseArea.PlayerDetectedGameOver();
         }
         else
             UpdateDetectionFeedback(delta);

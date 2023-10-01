@@ -26,9 +26,11 @@ public class Guard : KinematicBody2D
     public float currentIdleTimer = 0f;
 
     Area2D noiseDetectionArea;
-    private bool isDetectingNoise = false;
+    private bool isGuardDetectingNoise = false;
     private PlayerCharacter playerInNoiseArea;
     private bool investigationNoise = false;
+    private bool isPlayerDetectedByNoise;
+    private bool isPlayerDetectedByVision;
 
     public override void _Ready()
     {
@@ -53,17 +55,24 @@ public class Guard : KinematicBody2D
     {
         CheckingNoise(delta);
 
+        // Check vision detection
+        Node2D[] detectedBodies = detectionArea.GetOverlappingBodies().Cast<Node2D>().ToArray();
+        isPlayerDetectedByVision = false; // Reset vision detection for this frame
+        
+        foreach (Node2D body in detectedBodies)
+        {
+            if (body is PlayerCharacter player)
+                isPlayerDetectedByVision = true;
+        }
+
+        // update player detected flag
+        isPlayerDetected = isPlayerDetectedByNoise || isPlayerDetectedByVision;
+
+        // on reagi/ajuste le status de detection
         if (!isPlayerDetected)
             Patrol(delta);
         else
             PlayerDetected(delta);
-
-        Node2D[] detectedBodies = detectionArea.GetOverlappingBodies().Cast<Node2D>().ToArray();
-        foreach(Node2D body in detectedBodies)
-        {
-            if(body is PlayerCharacter player)
-                isPlayerDetected = true;
-        }
     }
 
     private void CheckingNoise(float delta)
@@ -71,15 +80,12 @@ public class Guard : KinematicBody2D
         if (playerInNoiseArea != null)
         {
             if (playerInNoiseArea.isRunning)
-            {                           
-                if (!isPlayerDetected)
-                {
-                    isPlayerDetected=true;
-                }
+            {
+                isPlayerDetectedByNoise = true;
             }
             else
             {
-                isPlayerDetected=false; // bug
+                isPlayerDetectedByNoise = false;
             }
         }
     }
@@ -92,11 +98,11 @@ public class Guard : KinematicBody2D
 
             if (player.isRunning)
             {
-                isDetectingNoise = true;
+                isGuardDetectingNoise = true;
                 if (!investigationNoise)
                 {
-                    GD.Print("Guard detected noise!");
-                    isPlayerDetected = true;
+                    GD.Print("Guard is detecting noise!");
+                    isPlayerDetectedByNoise = true;
                 }
             }
         }
@@ -107,9 +113,9 @@ public class Guard : KinematicBody2D
         if (body is PlayerCharacter player)
         {
             GD.Print("No more noise detected.");
-            isPlayerDetected = false; // Est-ce sortir du noise area met automatiquement la vision detection to false? Disons que oui...
+            isPlayerDetectedByNoise = false;
             playerInNoiseArea = null;
-            isDetectingNoise = false;
+            isGuardDetectingNoise = false;
             investigationNoise = false;
         }
     }
@@ -132,7 +138,7 @@ public class Guard : KinematicBody2D
         {
             UpdateIdleAnimation();
             detectionTimer += delta;
-            
+
             if (detectionTimer >= detectionTimerMax)
             {
                 detectionTimer = detectionTimerMax;
@@ -251,7 +257,7 @@ public class Guard : KinematicBody2D
         if (area.IsInGroup("player"))
         {
             GD.Print("Vision enabled");
-            isPlayerDetected = true;
+            isPlayerDetectedByVision = true;
         }
     }
 
@@ -259,7 +265,7 @@ public class Guard : KinematicBody2D
     {
         if (player.IsInGroup("player"))
         {
-            isPlayerDetected = false;
+            isPlayerDetectedByVision = false;
         }
     }
 }

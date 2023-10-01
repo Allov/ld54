@@ -1,6 +1,6 @@
 using Godot;
 using System.Collections.Generic;
-using System;
+using System.Linq;
 public class Guard : KinematicBody2D
 {
     [Export]
@@ -8,7 +8,7 @@ public class Guard : KinematicBody2D
     [Export]
     private float idleTimePerPatrolPoint = 3f;
     [Export]
-    private float detectionTimerMax = 1.0f;
+    private float detectionTimerMax = 2.0f;
 
     private AnimatedSprite animatedSprite;
     private string idleAnimation = "idle_up";
@@ -20,7 +20,17 @@ public class Guard : KinematicBody2D
     private Vector2 lastPosition;
     private bool isPlayerDetected = false;
     private float detectionTimer;
+    private Node2D questionBubbleSprite;
+    private Node2D exclamationBubbleSprite;
+    private ProgressBar detectionBar;
     public float currentIdleTimer = 0f;
+
+    Area2D noiseDetectionArea;
+    private bool isGuardDetectingNoise = false;
+    private PlayerCharacter playerInNoiseArea;
+    private bool investigationNoise = false;
+    private bool isPlayerDetectedByNoise;
+    private bool isPlayerDetectedByVision;
 
     public override void _Ready()
     {
@@ -30,38 +40,118 @@ public class Guard : KinematicBody2D
         detectionArea = GetNode<Area2D>("DetectionArea");
         detectionTimer = detectionTimerMax;
         lastPosition = GlobalPosition;
+        questionBubbleSprite = GetNode<Node2D>("QuestionBubble");
+        questionBubbleSprite.Visible = false;
+        exclamationBubbleSprite = GetNode<Node2D>("ExclamationBubble");
+        exclamationBubbleSprite.Visible = false;
+        detectionBar = GetNode<ProgressBar>("DetectionBar");
+        detectionBar.MaxValue = detectionTimerMax;
         PreparePatrolPoint();
+
+        noiseDetectionArea = GetNode<Area2D>("NoiseDetection");
     }
 
     public override void _Process(float delta)
     {
+        CheckingNoise(delta);
+
+        // Check vision detection
+        Node2D[] detectedBodies = detectionArea.GetOverlappingBodies().Cast<Node2D>().ToArray();
+        isPlayerDetectedByVision = false; // Reset vision detection for this frame
+
+        foreach (Node2D body in detectedBodies)
+        {
+            if (body is PlayerCharacter player)
+            {
+                var spaceState = GetWorld2d().DirectSpaceState;
+                Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, player.GlobalPosition, new Godot.Collections.Array { this }, CollisionMask);
+
+                if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+                    isPlayerDetectedByVision = true;
+            }
+        }
+
+        // update player detected flag
+        isPlayerDetected = isPlayerDetectedByNoise || isPlayerDetectedByVision;
+
+        // on reagit/ajuste le status de detection
         if (!isPlayerDetected)
             Patrol(delta);
         else
             PlayerDetected(delta);
     }
 
-	private void PreparePatrolPoint()
-	{
-		for (int i = 0; i < path2D.Curve.GetPointCount(); i++)
-		{
-			patrolPoints.Add(path2D.Curve.GetPointPosition(i));
-		}
+    private void CheckingNoise(float delta)
+    {
+        if (playerInNoiseArea != null)
+        {
+            if (playerInNoiseArea.isRunning)
+            {
+                isPlayerDetectedByNoise = true;
+            }
+            else
+            {
+                isPlayerDetectedByNoise = false;
+            }
+        }
+    }
 
-		patrolPoints.RemoveAt(patrolPoints.Count - 1);
-	}
+    private void OnNoiseDetection(KinematicBody2D body)
+    {
+        if (body is PlayerCharacter player)
+        {
+            playerInNoiseArea = player;
 
-	private void Patrol(float delta)
-	{
-		Vector2 difference = pathFollow2D.Position - patrolPoints[currentPatrolPoint];
+            if (player.isRunning)
+            {
+                isGuardDetectingNoise = true;
+                if (!investigationNoise)
+                {
+                    GD.Print("Guard is detecting noise!");
+                    isPlayerDetectedByNoise = true;
+                }
+            }
+        }
+    }
 
-        if(detectionTimer < detectionTimerMax)
+    private void OnNoiseDetectionAreaExited(KinematicBody2D body)
+    {
+        if (body is PlayerCharacter player)
+        {
+            GD.Print("No more noise detected.");
+            isPlayerDetectedByNoise = false;
+            playerInNoiseArea = null;
+            isGuardDetectingNoise = false;
+            investigationNoise = false;
+        }
+    }
+
+    private void PreparePatrolPoint()
+    {
+        for (int i = 0; i < path2D.Curve.GetPointCount(); i++)
+        {
+            patrolPoints.Add(path2D.Curve.GetPointPosition(i));
+        }
+
+        patrolPoints.RemoveAt(patrolPoints.Count - 1);
+    }
+
+    private void Patrol(float delta)
+    {
+        Vector2 difference = pathFollow2D.Position - patrolPoints[currentPatrolPoint];
+
+        if (detectionTimer < detectionTimerMax)
         {
             UpdateIdleAnimation();
             detectionTimer += delta;
-            
-            if (detectionTimer > detectionTimerMax)
+
+            if (detectionTimer >= detectionTimerMax)
+            {
                 detectionTimer = detectionTimerMax;
+                HideDetectionFeedback();
+            }
+            else
+                UpdateDetectionFeedback(-delta);
         }
         else
         {
@@ -82,27 +172,54 @@ public class Guard : KinematicBody2D
             }
         }
 
-		lastPosition = GlobalPosition;
-	}
+        lastPosition = GlobalPosition;
+    }
 
     private void PlayerDetected(float delta)
     {
         UpdateIdleAnimation();
         detectionTimer -= delta;
 
-        if (detectionTimer <= 0)
+        if (detectionTimer <= 0.0f)
         {
             detectionTimer = 0.0f;
         }
+        else
+            UpdateDetectionFeedback(delta);
+    }
+
+    private void UpdateDetectionFeedback(float delta)
+    {
+        detectionBar.Value += delta;
+        detectionBar.Visible = true;
+
+        if (detectionTimer <= detectionTimerMax / 2)
+        {
+            questionBubbleSprite.Visible = false;
+            exclamationBubbleSprite.Visible = true;
+        }
+        else
+        {
+            questionBubbleSprite.Visible = true;
+            exclamationBubbleSprite.Visible = false;
+        }
+    }
+
+    private void HideDetectionFeedback()
+    {
+        questionBubbleSprite.Visible = false;
+        exclamationBubbleSprite.Visible = false;
+        detectionBar.Value = 0.0f;
+        detectionBar.Visible = false;
     }
 
     private void UpdateIdleAnimation()
     {
         animatedSprite.Animation = idleAnimation;
 
-		if (!animatedSprite.Playing)
-			animatedSprite.Play();
-	}
+        if (!animatedSprite.Playing)
+            animatedSprite.Play();
+    }
 
     private void UpdateWalkingAnimation(Vector2 direction)
     {
@@ -137,20 +254,27 @@ public class Guard : KinematicBody2D
             idleAnimation = "idle_down";
         }
 
-		if (!animatedSprite.Playing)
-			animatedSprite.Play();
-	}
+        if (!animatedSprite.Playing)
+            animatedSprite.Play();
+    }
 
     private void OnDetectionAreaEntered(Node2D area)
     {
         if (area.IsInGroup("player"))
         {
-            isPlayerDetected = true;
+            var spaceState = GetWorld2d().DirectSpaceState;
+            Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, area.GlobalPosition, new Godot.Collections.Array { this }, CollisionMask);
+
+            if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+                isPlayerDetectedByVision = true;
         }
     }
 
     private void OnDetectionAreaExited(Area2D player)
     {
-        isPlayerDetected = false;
+        if (player.IsInGroup("player"))
+        {
+            isPlayerDetectedByVision = false;
+        }
     }
 }

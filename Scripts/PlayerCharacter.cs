@@ -17,7 +17,7 @@ public class PlayerCharacter : KinematicBody2D
     [Export]
     private float staminaRecoveryRate = 5f; // Combien vite la stamina revient quand joueur ne court pas.
     private float currentStamina;
-    private bool isRunning = false;
+    public bool isRunning = false;
     private AnimatedSprite playerAnimatedSprite;
     private Vector2 currentDirection = Vector2.Zero;
     private int detectionIncrement = 0;
@@ -26,6 +26,19 @@ public class PlayerCharacter : KinematicBody2D
     private Node2D interactionBubbleSprite;
     private AnimationPlayer interactionBubbleAnimationPlayer;
     public bool nearAGuard, nearArtifact, nearExitZone;
+    [Export]
+    private float baseNoiseRadius = 128f; // Default noise radius when walking.
+    [Export]
+    private float noiseMultiplier = 1f;  // Default noise multiplier (e.g., different terrains or player states could adjust this).
+    [Export]
+    private float runningNoiseFactor = 2f; // Multiplier for noise when running.
+    [Export]
+    private float noiseReductionTime = 0.5f;
+    private float idleTime = 0f;
+    public bool isMakingNoise;
+
+    public CircleShape2D noiseShape;
+
     public Artifact HeldArtifact;
 
     public Artifact nearestArtifact;
@@ -109,6 +122,11 @@ public class PlayerCharacter : KinematicBody2D
             direction.x -= 1;
         if (Input.IsActionPressed("ui_right"))
             direction.x += 1;
+
+        if (direction != Vector2.Zero)
+        {
+            idleTime = 0;
+        }
 
         return direction.Normalized();
     }

@@ -27,4 +27,7 @@ lookahead = 0.001
 
 [node name="Guard" parent="Path2D/PathFollow2D" index="0" instance=ExtResource( 1 )]
 
+[node name="CollisionNoise" parent="Path2D/PathFollow2D/Guard/NoiseDetection" index="0"]
+shape = null
+
 [editable path="Path2D/PathFollow2D/Guard"]

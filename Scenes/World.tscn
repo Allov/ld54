@@ -22,10 +22,47 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -40.0
+margin_left = -100.0
 margin_top = -14.0
 text = "Score:"
 
 [node name="TextureProgress" type="TextureProgress" parent="CanvasLayer"]
 margin_right = 40.0
 margin_bottom = 40.0
+
+[node name="GameOverCanvas" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="GameOverCanvas"]
+margin_right = 384.0
+margin_bottom = 216.0
+rect_min_size = Vector2( 384, 216 )
+color = Color( 0.647059, 0.317647, 1, 0.341176 )
+
+[node name="CenterContainer" type="CenterContainer" parent="GameOverCanvas"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverCanvas/CenterContainer"]
+margin_left = 155.0
+margin_top = 73.0
+margin_right = 228.0
+margin_bottom = 142.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 35
+
+[node name="GameOverScoreLabel" type="Label" parent="GameOverCanvas/CenterContainer/VBoxContainer"]
+margin_right = 73.0
+margin_bottom = 14.0
+custom_colors/font_color = Color( 0.533333, 0, 0, 1 )
+text = "Game Over"
+align = 1
+
+[node name="RestartButton" type="Button" parent="GameOverCanvas/CenterContainer/VBoxContainer"]
+margin_top = 49.0
+margin_right = 73.0
+margin_bottom = 69.0
+shortcut_in_tooltip = false
+text = "Restart"

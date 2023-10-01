@@ -9,13 +9,24 @@ public class World : Node
     private int runScore = 0;
     private Label scoreLabel;
 
+    private CanvasLayer gameOverCanvas;
+
     [Export]
     public PackedScene[] packedScenes;
     Node2D currentLevel;
     private int currentLevelIndex = 0;
 
+    private Label gameOverScoreLabel;
+    private Button restartButton;
+
     public override void _Ready()
     {
+        gameOverCanvas = GetNode<CanvasLayer>("GameOverCanvas");
+        gameOverScoreLabel = GetNode<Label>("GameOverCanvas/CenterContainer/VBoxContainer/GameOverScoreLabel");
+        restartButton = GetNode<Button>("GameOverCanvas/CenterContainer/VBoxContainer/RestartButton");
+        restartButton.Connect("pressed", this, "OnRestartButtonPressed");
+        gameOverCanvas.Hide();
+
         currentLevel = packedScenes[0].Instance<Node2D>();
         AddChild(currentLevel);
 
@@ -26,11 +37,24 @@ public class World : Node
 
     public override void _Process(float delta)
     {
+        if (player.artifactScoreToCount)
+        {
+            CalculateArtifactsScore();
+            UpdateTotalScoreUI();
+            player.artifactScoreToCount = false;  // Reset the flag
+        }
+
         UpdatePlayerNoise();
 
         if (player.endOfLevelTriggered)
         {
             TriggerEndLevel();
+        }
+
+        if (player.isDead)
+        {
+            // player should be 'fixed' and not being able to move --> géré dans player class
+            DisplayGameOver();
         }
     }
 
@@ -42,30 +66,35 @@ public class World : Node
         }
     }
 
+    private void UpdateTotalScoreUI()
+    {
+        GetNode<Label>("CanvasLayer/ScoreLabel").Text = "Score: " + totalScore.ToString();
+    }
+
     public void TriggerEndLevel()
     {
         GD.Print("End of level triggered");
 
         player.endOfLevelTriggered = false;
 
-
-        CalculateRunScore();
-        CalculateTotalScore();
-        DisplayEndOfLevelUI();
-
         LoadNextLevel();
     }
 
-    private void CalculateRunScore()
+        private void CalculateArtifactsScore()
     {
-        // On calcule pour le niveau actuel seulement
-        runScore = player.collectedArtifacts.Sum(artifact => artifact.artifactValue);
+        foreach (Artifact artifact in player.collectedArtifacts)
+        {
+            if (!artifact.isScoreCounted)
+            {
+                totalScore += artifact.artifactValue;
+                artifact.isScoreCounted = true; 
+            }
+        }
     }
-
-    private void CalculateTotalScore()
+    public void AddToTotalScore(int value)
     {
-        // Ici, le cumulatif de tous les niveaux
-        totalScore += runScore;
+        totalScore += value;
+        UpdateTotalScoreUI();
     }
 
     private void DisplayEndOfLevelUI()
@@ -116,5 +145,21 @@ public class World : Node
         // Reconnecter les nodes necessaires du prochain niveau
         Area2D exitArea = currentLevel.GetNode<Area2D>("ExitArea");
         player = currentLevel.GetNode<PlayerCharacter>("Player");
+    }
+
+    private void DisplayGameOver()
+    {
+        gameOverScoreLabel.Text = "Score: " + totalScore.ToString();
+        gameOverCanvas.Show();
+    }
+
+    private void OnRestartButtonPressed()
+    {
+        // todo
+        totalScore = 0;
+        runScore = 0;
+        gameOverCanvas.Hide();
+        currentLevelIndex = -1;
+        LoadNextLevel();
     }
 }

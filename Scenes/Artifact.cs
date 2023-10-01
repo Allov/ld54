@@ -11,6 +11,8 @@ public class Artifact : Area2D
     private TileMap tileMap;
     private bool isCollected = false;
     private bool playerInRange = false;
+
+    public bool isScoreCounted = false;
     
     [Export]
     public PackedScene ArtifactShapeScene;

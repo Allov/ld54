@@ -239,6 +239,7 @@ shape = SubResource( 2 )
 [node name="Bag" parent="." instance=ExtResource( 4 )]
 visible = false
 position = Vector2( -192, -114 )
+z_index = 100
 
 [node name="Light2D" type="Light2D" parent="."]
 position = Vector2( 0, -4 )

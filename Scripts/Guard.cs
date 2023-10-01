@@ -70,7 +70,7 @@ public class Guard : KinematicBody2D
                 currentIdleTimer -= delta;
                 UpdateIdleAnimation();
             }
-            else if (difference.Length() < 2f)
+            else if (difference.Length() < 5f)
             {
                 currentPatrolPoint = (currentPatrolPoint + 1) % patrolPoints.Count;
                 currentIdleTimer = idleTimePerPatrolPoint;
@@ -110,6 +110,7 @@ public class Guard : KinematicBody2D
         {
             animatedSprite.Animation = "walk_left";
             detectionArea.RotationDegrees = 270.0f;
+            GetNode<Light2D>("Light2D").RotationDegrees = 270.0f;
             idleAnimation = "idle_left";
             animatedSprite.FlipH = false;
         }
@@ -117,6 +118,7 @@ public class Guard : KinematicBody2D
         {
             animatedSprite.Animation = "walk_right";
             detectionArea.RotationDegrees = 90.0f;
+            GetNode<Light2D>("Light2D").RotationDegrees = 90.0f;
             idleAnimation = "idle_right";
             animatedSprite.FlipH = true;
         }
@@ -124,12 +126,14 @@ public class Guard : KinematicBody2D
         {
             animatedSprite.Animation = "walk_up";
             detectionArea.RotationDegrees = 180.0f;
+            GetNode<Light2D>("Light2D").RotationDegrees = 180.0f;
             idleAnimation = "idle_up";
         }
         if (direction.y < 0 && Mathf.Abs(direction.y) > Mathf.Abs(direction.x))
         {
             animatedSprite.Animation = "walk_down";
             detectionArea.RotationDegrees = 0.0f;
+            GetNode<Light2D>("Light2D").RotationDegrees = 0.0f;
             idleAnimation = "idle_down";
         }
 

@@ -1,9 +1,11 @@
-[gd_scene load_steps=41 format=2]
+[gd_scene load_steps=47 format=2]
 
 [ext_resource path="res://Assets/sprites.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/PlayerCharacter.cs" type="Script" id=2]
 [ext_resource path="res://Assets/animations.png" type="Texture" id=3]
 [ext_resource path="res://Scenes/Bag.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Vignette.gdshader" type="Shader" id=5]
+[ext_resource path="res://Assets/light2.png" type="Texture" id=6]
 
 [sub_resource type="AtlasTexture" id=19]
 atlas = ExtResource( 3 )
@@ -200,6 +202,27 @@ tracks/0/keys = {
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 8, 8 )
 
+[sub_resource type="Gradient" id=38]
+colors = PoolColorArray( 0.0194397, 0.0546875, 0.0224688, 0, 0.516113, 0.875, 0.647892, 0.989655 )
+
+[sub_resource type="GradientTexture" id=39]
+gradient = SubResource( 38 )
+
+[sub_resource type="Environment" id=37]
+background_mode = 4
+glow_enabled = true
+glow_blend_mode = 0
+adjustment_enabled = true
+adjustment_color_correction = SubResource( 39 )
+
+[sub_resource type="ShaderMaterial" id=40]
+shader = ExtResource( 5 )
+shader_param/player_position = Vector2( 0.5, 0.5 )
+shader_param/color = Color( 0.0901961, 0.0862745, 0.101961, 1 )
+shader_param/MULTIPLIER = 1.0
+shader_param/SCALE = 0.9
+shader_param/SOFTNESS = 1.0
+
 [node name="Player" type="KinematicBody2D" groups=["player"]]
 collision_layer = 2
 collision_mask = 23
@@ -235,3 +258,20 @@ shape = SubResource( 2 )
 [node name="Bag" parent="." instance=ExtResource( 4 )]
 visible = false
 position = Vector2( -192, -114 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 37 )
+
+[node name="Light2D" type="Light2D" parent="."]
+position = Vector2( 0, -4 )
+scale = Vector2( 0.208333, 0.208333 )
+texture = ExtResource( 6 )
+color = Color( 0.36, 8, 0, 1 )
+energy = 0.35
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+material = SubResource( 40 )
+anchor_right = 1.0
+anchor_bottom = 1.0

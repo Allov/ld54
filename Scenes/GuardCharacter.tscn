@@ -180,8 +180,8 @@ animations = [ {
 [sub_resource type="RectangleShape2D" id=3]
 extents = Vector2( 8, 8 )
 
-[sub_resource type="RectangleShape2D" id=37]
-extents = Vector2( 10.5, 16 )
+[sub_resource type="CircleShape2D" id=37]
+radius = 159.503
 
 [node name="Guard" type="KinematicBody2D" groups=["guards"]]
 collision_mask = 1030
@@ -220,5 +220,5 @@ shape = SubResource( 37 )
 
 [connection signal="body_entered" from="DetectionArea" to="." method="OnDetectionAreaEntered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="OnDetectionAreaExited"]
-[connection signal="area_entered" from="NoiseDetection" to="." method="OnNoiseDetectionAreaEntered"]
-[connection signal="area_exited" from="NoiseDetection" to="." method="OnNoiseDetectionAreaExited"]
+[connection signal="body_entered" from="NoiseDetection" to="." method="OnNoiseDetection"]
+[connection signal="body_exited" from="NoiseDetection" to="." method="OnNoiseDetectionAreaExited"]

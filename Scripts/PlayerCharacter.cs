@@ -17,7 +17,7 @@ public class PlayerCharacter : KinematicBody2D
     [Export]
     private float staminaRecoveryRate = 5f; // Combien vite la stamina revient quand joueur ne court pas.
     private float currentStamina;
-    private bool isRunning = false;
+    public bool isRunning = false;
     private AnimatedSprite playerAnimatedSprite;
     private Vector2 currentDirection = Vector2.Zero;
     private int detectionIncrement = 0;
@@ -91,7 +91,6 @@ public class PlayerCharacter : KinematicBody2D
         Vector2 inputDirection = GetInputDirection();
         HandleRunning(delta);
         MoveAndHandleAnimation(inputDirection, delta);
-        SetNoiseRadius(currentDirection, delta);
         CheckAndSetBubbleVisibility();
         HandleInteractions();
 
@@ -154,44 +153,6 @@ public class PlayerCharacter : KinematicBody2D
             UpdateIdlingAnimation();
         }
     }
-
-    private void SetNoiseRadius(Vector2 currentDirection, float delta)
-    {
-        if (currentDirection != Vector2.Zero)
-        {
-            if (isRunning)
-            {
-                SetNoiseRadius(baseNoiseRadius * runningNoiseFactor * noiseMultiplier);
-            }
-            else
-            {
-                SetNoiseRadius(baseNoiseRadius * noiseMultiplier);
-            }
-        }
-        else
-        {
-            idleTime += delta;
-            if (idleTime > noiseReductionTime)
-            {
-                SetNoiseRadius(0);
-            }
-        }
-    }
-
-    private void SetNoiseRadius(float radius)
-    {
-        noiseShape = ((CollisionShape2D)GetNode("NoiseRadius/CollisionShape2D")).Shape as CircleShape2D;
-        if (noiseShape != null)
-        {
-            noiseShape.Radius = radius;
-            isMakingNoise = true;
-        }
-        else 
-        {
-            isMakingNoise = false;
-        }
-    }
-
 
     private void UpdateWalkingAnimation()
     {

@@ -23,6 +23,9 @@ public class Guard : KinematicBody2D
     public float currentIdleTimer = 0f;
 
     Area2D noiseDetectionArea;
+    private bool isDetectingNoise = false;
+    private PlayerCharacter playerInNoiseArea;
+    private bool investigationNoise = false;
 
     public override void _Ready()
     {
@@ -39,25 +42,83 @@ public class Guard : KinematicBody2D
 
     public override void _Process(float delta)
     {
-        if (!isPlayerDetected)
-            Patrol(delta);
-        else
-            PlayerDetected(delta);
+
+        CheckingNoise(delta);
+
+    if (!isPlayerDetected)
+    {
+        GD.Print("Guard is patrolling."); 
+        Patrol(delta);
+    }
+    else
+    {
+        GD.Print("Guard has detected the player.");
+        PlayerDetected(delta);
     }
 
-	private void PreparePatrolPoint()
-	{
-		for (int i = 0; i < path2D.Curve.GetPointCount(); i++)
-		{
-			patrolPoints.Add(path2D.Curve.GetPointPosition(i));
-		}
+    }
 
-		patrolPoints.RemoveAt(patrolPoints.Count - 1);
-	}
+    private void CheckingNoise(float delta)
+    {
+        if (playerInNoiseArea != null)
+        {
+            if (playerInNoiseArea.isRunning)
+            {                           
+                if (!isPlayerDetected)
+                {
+                    isPlayerDetected=true;
+                }
+            }
+            else
+            {
+                isPlayerDetected=false;
+            }
+        }
+    }
 
-	private void Patrol(float delta)
-	{
-		Vector2 difference = pathFollow2D.Position - patrolPoints[currentPatrolPoint];
+    private void OnNoiseDetection(KinematicBody2D body)
+    {
+        if (body is PlayerCharacter player)
+        {
+            playerInNoiseArea = player;
+            GD.Print("Guard detected noise!");
+
+            if (player.isRunning)
+            {
+                isDetectingNoise = true;
+                if (!investigationNoise)
+                {
+                    isPlayerDetected = true;
+                }
+            }
+        }
+    }
+
+    private void OnNoiseDetectionAreaExited(KinematicBody2D body)
+    {
+        if (body is PlayerCharacter player)
+        {
+            GD.Print("No more noise detected.");
+            isPlayerDetected = false; // Est-ce sortir du noise area met automatiquement la vision detection to false? Disons que oui...
+            playerInNoiseArea = null;
+            isDetectingNoise = false;
+            investigationNoise = false;
+        }
+    }
+
+    private void PreparePatrolPoint()
+    {
+        for (int i = 0; i < path2D.Curve.GetPointCount(); i++)
+        {
+            patrolPoints.Add(path2D.Curve.GetPointPosition(i));
+        }
+
+        patrolPoints.RemoveAt(patrolPoints.Count - 1);
+    }
+
+    private void Patrol(float delta)
+    {
+        Vector2 difference = pathFollow2D.Position - patrolPoints[currentPatrolPoint];
 
         if (detectionTimer < detectionTimerMax)
         {
@@ -86,22 +147,7 @@ public class Guard : KinematicBody2D
             }
         }
 
-		lastPosition = GlobalPosition;
-	}
-
-    private void OnNoiseDetectionAreaEntered(Area2D area)
-    {
-        if (area.Name == "NoiseRadius")
-        {
-            GD.Print("Guard detected noise!");
-            isPlayerDetected = true;
-        }
-    }
-
-    private void OnNoiseDetectionAreaExited(Area2D area)
-    {
-        GD.Print("No more noise detected.");
-        isPlayerDetected = false;
+        lastPosition = GlobalPosition;
     }
 
     private void PlayerDetected(float delta)
@@ -119,9 +165,9 @@ public class Guard : KinematicBody2D
     {
         animatedSprite.Animation = idleAnimation;
 
-		if (!animatedSprite.Playing)
-			animatedSprite.Play();
-	}
+        if (!animatedSprite.Playing)
+            animatedSprite.Play();
+    }
 
     private void UpdateWalkingAnimation(Vector2 direction)
     {
@@ -156,9 +202,9 @@ public class Guard : KinematicBody2D
             idleAnimation = "idle_down";
         }
 
-		if (!animatedSprite.Playing)
-			animatedSprite.Play();
-	}
+        if (!animatedSprite.Playing)
+            animatedSprite.Play();
+    }
 
     private void OnDetectionAreaEntered(Node2D area)
     {
@@ -170,6 +216,9 @@ public class Guard : KinematicBody2D
 
     private void OnDetectionAreaExited(Area2D player)
     {
-        isPlayerDetected = false;
+        if (player.IsInGroup("player"))
+        {
+            isPlayerDetected = false;
+        }
     }
 }

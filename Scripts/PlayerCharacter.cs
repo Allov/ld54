@@ -85,6 +85,7 @@ public class PlayerCharacter : KinematicBody2D
 
     private void OnClosedBag(object sender, EventArgs e)
     {
+        GetNode<AudioStreamPlayer2D>("CloseBagSound").Play();
         if (sender is Bag bag)
         {
             if (bag.CurrentArtifactShape != null)
@@ -266,6 +267,7 @@ public class PlayerCharacter : KinematicBody2D
                 HeldArtifact.RemoveChild(HeldArtifact.ArtifactShape);
                 Bag.CurrentArtifactShape = HeldArtifact.ArtifactShape;
                 Bag.Visible = true;
+                GetNode<AudioStreamPlayer2D>("OpenBagSound").Play();
                 HeldArtifact.ArtifactShape.Visible = true;
 
                 Bag.AddChild(HeldArtifact.ArtifactShape);
@@ -279,6 +281,7 @@ public class PlayerCharacter : KinematicBody2D
             else
             {
                 Bag.Visible = true;
+                GetNode<AudioStreamPlayer2D>("OpenBagSound").Play();
             }
         }
     }

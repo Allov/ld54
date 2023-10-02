@@ -77,7 +77,7 @@ public class PlayerCharacter : KinematicBody2D
         var s = 0.7f;
         if (Bag.Visible)
         {
-            s = 0.26f;
+            s = 0.35f;
         }
         var sm = GetNode<ColorRect>("CanvasLayer/ColorRect").Material as ShaderMaterial;
         sm.SetShaderParam("SCALE", s);
@@ -85,6 +85,7 @@ public class PlayerCharacter : KinematicBody2D
 
     private void OnClosedBag(object sender, EventArgs e)
     {
+        GetNode<AudioStreamPlayer2D>("CloseBagSound").Play();
         if (sender is Bag bag)
         {
             if (bag.CurrentArtifactShape != null)
@@ -266,9 +267,12 @@ public class PlayerCharacter : KinematicBody2D
                 HeldArtifact.RemoveChild(HeldArtifact.ArtifactShape);
                 Bag.CurrentArtifactShape = HeldArtifact.ArtifactShape;
                 Bag.Visible = true;
+                GetNode<AudioStreamPlayer2D>("OpenBagSound").Play();
                 HeldArtifact.ArtifactShape.Visible = true;
 
                 Bag.AddChild(HeldArtifact.ArtifactShape);
+
+                Bag.CollectingArtifact = true;
             }
             else if (nearExitZone)
             {
@@ -277,6 +281,7 @@ public class PlayerCharacter : KinematicBody2D
             else
             {
                 Bag.Visible = true;
+                GetNode<AudioStreamPlayer2D>("OpenBagSound").Play();
             }
         }
     }

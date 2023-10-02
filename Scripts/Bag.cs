@@ -29,6 +29,7 @@ public class Bag : Node2D
     public float SnapPositionSpeed = 0.128f;
     private bool CanPlace;
     private bool Replacing;
+    public bool CollectingArtifact;
 
     public Vector2 OriginalPosition { get; private set; }
 
@@ -102,8 +103,13 @@ public class Bag : Node2D
 
         if (Visible && Input.IsActionJustPressed("ui_cancel"))
         {
-            if (Placed && !Replacing)
+            if (CurrentArtifactShape != null)
+                CurrentArtifactShape.Modulate = Colors.White;
+
+
+            if (CollectingArtifact && Placed)
             {
+                CollectingArtifact = false;
                 Placed = false;
                 OnPlacedArtifact?.Invoke(this, EventArgs.Empty);
                 Visible = false;

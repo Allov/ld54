@@ -11,6 +11,12 @@ public class World : Node
     private Label scoreLabel;
 
     private CanvasLayer gameOverCanvas;
+    private bool gameOverDisplayed = false;
+
+    private CanvasLayer victoryScreenCanvas;
+
+    private Label victoryScoreLabel;
+
 
     [Export]
     public PackedScene[] packedScenes;
@@ -19,6 +25,7 @@ public class World : Node
 
     private Label gameOverScoreLabel;
     private Button restartButton;
+    private Button victoryRestartButton;
     private Timer gameTimer; // Reference to our Timer node
     private Label timerLabel; // Reference to our Timer label
 
@@ -34,6 +41,10 @@ public class World : Node
     private HSlider sfxSlider;
     private HSlider musicSlider;
 
+    private AudioStreamPlayer mainMusicPlayer;
+    private AudioStreamPlayer victoryMusicPlayer;
+    private AudioStreamPlayer gameOverPlayer;
+
     private bool isOptionMenuOpen = false;
 
 
@@ -45,6 +56,12 @@ public class World : Node
         xButton = GetNode<Button>("OptionMenu/XButton");
         sfxSlider = GetNode<HSlider>("OptionMenu/SFXSlider");
         musicSlider = GetNode<HSlider>("OptionMenu/MusicSlider");
+
+        mainMusicPlayer = GetNode<AudioStreamPlayer>("MainMusicPlayer");
+        victoryMusicPlayer = GetNode<AudioStreamPlayer>("VictoryMusicPlayer");
+        gameOverPlayer = GetNode<AudioStreamPlayer>("GameOverPlayer");
+
+        mainMusicPlayer.Play();
 
         // Connect signals
         optionButton.Connect("pressed", this, "ToggleOptionMenu");
@@ -63,6 +80,11 @@ public class World : Node
         restartButton = GetNode<Button>("GameOverCanvas/CenterContainer/VBoxContainer/RestartButton");
         restartButton.Connect("pressed", this, "OnRestartButtonPressed");
         gameOverCanvas.Hide();
+
+        victoryScreenCanvas = GetNode<CanvasLayer>("VictoryScreen");
+        victoryScoreLabel = GetNode<Label>("VictoryScreen/CenterContainer/VBoxContainer/VictoryScoreLabel");
+        victoryRestartButton = GetNode<Button>("VictoryScreen/CenterContainer/VBoxContainer/RestartButton");
+        victoryRestartButton.Connect("pressed", this, "OnRestartButtonPressed");
 
         currentLevel = packedScenes[0].Instance<Node2D>();
         AddChild(currentLevel);
@@ -97,18 +119,24 @@ public class World : Node
             TriggerEndLevel();
         }
 
-        if (player.isDead)
+        if (player.isDead && !gameOverDisplayed)
         {
-            // player should be 'fixed' and not being able to move --> géré dans player class
             DisplayGameOver();
+            gameOverDisplayed = true;
         }
 
         timerLabel.Text = $"Time: {Math.Ceiling(gameTimer.TimeLeft)}s";
+
+
+        // Pour tester Victory screen
+        // if (Input.IsKeyPressed((int)KeyList.V))
+        // {
+        //     DisplayVictoryScreen();
+        // }
     }
 
     public void ToggleOptionMenu()
     {
-        GD.Print("Sapin: " + isOptionMenuOpen);
         if (!isOptionMenuOpen)
         {
             isOptionMenuOpen = true;
@@ -245,9 +273,9 @@ public class World : Node
         currentLevelIndex++;
         if (currentLevelIndex >= packedScenes.Length)
         {
-            // Gerer ce qui se passe après le dernier niveau
-            // Pour l'instant, on retourne simplement au premier niveau. Ou un victory screen?
-            currentLevelIndex = 0;
+            // Gérer ce qui se passe après le dernier niveau
+            DisplayVictoryScreen();
+            return;
         }
 
         // Instancier et charger le nouveau niveau
@@ -261,6 +289,20 @@ public class World : Node
         StartGameTimer();
     }
 
+    private void DisplayVictoryScreen()
+    {
+
+        GetTree().Paused = true;
+
+        victoryScoreLabel.Text = "Score: " + totalScore.ToString();
+        victoryScreenCanvas.Show();
+        scoreLabel.Hide();
+
+        mainMusicPlayer.Stop();
+        victoryMusicPlayer.Play();
+        gameOverPlayer.Stop();
+    }
+
     private void StartGameTimer()
     {
         gameTimer.Stop();
@@ -272,15 +314,26 @@ public class World : Node
         gameOverScoreLabel.Text = "Score: " + totalScore.ToString();
         gameOverCanvas.Show();
         scoreLabel.Hide();
+
+        mainMusicPlayer.Stop();
+        victoryMusicPlayer.Stop();
+        gameOverPlayer.Play();
     }
 
     private void OnRestartButtonPressed()
     {
         totalScore = 0;
         runScore = 0;
-        UpdateTotalScoreUI();  // Add this line to update the score UI
+        UpdateTotalScoreUI();
         gameOverCanvas.Hide();
+        victoryScreenCanvas.Hide();
         currentLevelIndex = -1;
         LoadNextLevel();
+
+        mainMusicPlayer.Play();
+        victoryMusicPlayer.Stop();
+        gameOverPlayer.Stop();
+
+        GetTree().Paused = false;
     }
 }

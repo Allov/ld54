@@ -1,10 +1,13 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Scenes/LevelOne.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/LevelThree.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Assets/settings.png" type="Texture" id=3]
 [ext_resource path="res://Scripts/World.cs" type="Script" id=4]
 [ext_resource path="res://Scenes/LevelZero.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/MainMusic.mp3" type="AudioStream" id=6]
+[ext_resource path="res://Assets/VictoryMusic.mp3" type="AudioStream" id=7]
+[ext_resource path="res://Assets/GameOver.mp3" type="AudioStream" id=8]
 
 [sub_resource type="Environment" id=1]
 background_mode = 4
@@ -49,9 +52,6 @@ margin_right = 11.0
 margin_bottom = 45.0
 rect_scale = Vector2( 0.5, 0.5 )
 icon = ExtResource( 3 )
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-volume_db = -31.966
 
 [node name="GameOverCanvas" type="CanvasLayer" parent="."]
 pause_mode = 2
@@ -153,5 +153,77 @@ margin_right = -2.0
 margin_bottom = 14.0
 text = "Music"
 
+[node name="VictoryScreen" type="CanvasLayer" parent="."]
+pause_mode = 2
+layer = 100
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="VictoryScreen"]
+margin_right = 576.0
+margin_bottom = 324.0
+rect_min_size = Vector2( 384, 216 )
+color = Color( 0.129412, 0.160784, 0.478431, 0.917647 )
+
+[node name="CenterContainer" type="CenterContainer" parent="VictoryScreen"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VictoryScreen/CenterContainer"]
+margin_left = 250.0
+margin_top = 118.0
+margin_right = 325.0
+margin_bottom = 206.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 20
+
+[node name="VictoryTextLabel" type="Label" parent="VictoryScreen/CenterContainer/VBoxContainer"]
+margin_right = 75.0
+margin_bottom = 14.0
+custom_colors/font_color = Color( 0, 0.533333, 0.0470588, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+text = "VICTORY!"
+align = 1
+
+[node name="VictoryScoreLabel" type="Label" parent="VictoryScreen/CenterContainer/VBoxContainer"]
+margin_top = 34.0
+margin_right = 75.0
+margin_bottom = 48.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+text = "Score: 1234"
+align = 1
+
+[node name="RestartButton" type="Button" parent="VictoryScreen/CenterContainer/VBoxContainer"]
+margin_top = 68.0
+margin_right = 75.0
+margin_bottom = 88.0
+shortcut_in_tooltip = false
+text = "Restart"
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 1 )
+
+[node name="MainMusicPlayer" type="AudioStreamPlayer" parent="."]
+pause_mode = 2
+stream = ExtResource( 6 )
+volume_db = -26.722
+bus = "Music"
+
+[node name="VictoryMusicPlayer" type="AudioStreamPlayer" parent="."]
+pause_mode = 2
+stream = ExtResource( 7 )
+volume_db = -31.966
+bus = "Music"
+
+[node name="GameOverPlayer" type="AudioStreamPlayer" parent="."]
+pause_mode = 2
+stream = ExtResource( 8 )
+volume_db = -27.596
+bus = "Music"

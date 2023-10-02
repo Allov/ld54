@@ -56,7 +56,6 @@ public class Guard : KinematicBody2D
 
         // Check vision detection
         Node2D[] detectedBodies = detectionArea.GetOverlappingBodies().Cast<Node2D>().ToArray();
-        isPlayerDetectedByVision = false; // Reset vision detection for this frame
 
         foreach (Node2D body in detectedBodies)
         {
@@ -66,7 +65,14 @@ public class Guard : KinematicBody2D
                 Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, player.GlobalPosition, new Godot.Collections.Array { this }, CollisionMask);
 
                 if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+                {
+                    if (!isPlayerDetectedByVision && !isPlayerDetectedByNoise)
+                    {
+                        GetNode<AudioStreamPlayer2D>("AudioStreamPlayer2D").Play();
+                    }
                     isPlayerDetectedByVision = true;
+                }
+
             }
         }
 
@@ -86,6 +92,10 @@ public class Guard : KinematicBody2D
         {
             if (playerInNoiseArea.isRunning && playerInNoiseArea.isMoving)
             {
+                if (!isPlayerDetectedByVision && !isPlayerDetectedByNoise)
+                {
+                    GetNode<AudioStreamPlayer2D>("AudioStreamPlayer2D").Play();
+                }
                 isPlayerDetectedByNoise = true;
             }
             else
@@ -106,7 +116,12 @@ public class Guard : KinematicBody2D
                 isGuardDetectingNoise = true;
                 if (!investigationNoise)
                 {
+
                     GD.Print("Guard is detecting noise!");
+                    if (!isPlayerDetectedByVision && !isPlayerDetectedByNoise)
+                    {
+                        GetNode<AudioStreamPlayer2D>("AudioStreamPlayer2D").Play();
+                    }
                     isPlayerDetectedByNoise = true;
                 }
             }
@@ -186,8 +201,6 @@ public class Guard : KinematicBody2D
         }
         else
             UpdateDetectionFeedback(delta);
-
-        GetNode<AudioStreamPlayer2D>("AudioStreamPlayer2D").Play();
     }
 
     private void UpdateDetectionFeedback(float delta)
@@ -268,7 +281,15 @@ public class Guard : KinematicBody2D
             Godot.Collections.Dictionary result = spaceState.IntersectRay(GlobalPosition, area.GlobalPosition, new Godot.Collections.Array { this }, CollisionMask);
 
             if (result.Contains("collider") && result["collider"] is KinematicBody2D)
+            {
+                if (!isPlayerDetectedByVision && !isPlayerDetectedByNoise)
+                {
+                    GetNode<AudioStreamPlayer2D>("AudioStreamPlayer2D").Play();
+                }
+
                 isPlayerDetectedByVision = true;
+            }
+
         }
     }
 

@@ -270,12 +270,12 @@ percent_visible = false
 collision_mask = 1024
 
 [node name="CollisionNoise" type="CollisionShape2D" parent="NoiseDetection"]
-visible = false
 position = Vector2( 0.5, 1 )
 shape = SubResource( 39 )
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource( 5 )
+volume_db = -20.1
 bus = "SFX"
 
 [connection signal="body_entered" from="DetectionArea" to="." method="OnDetectionAreaEntered"]

@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Assets/title.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/Title.cs" type="Script" id=2]
 [ext_resource path="res://Scenes/World.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/SplashMusic.mp3" type="AudioStream" id=4]
 
 [sub_resource type="Animation" id=1]
 resource_name = "fade"
@@ -52,3 +53,8 @@ color = Color( 1, 1, 1, 0 )
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 autoplay = "fade"
 anims/fade = SubResource( 1 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+volume_db = -15.0
+autoplay = true

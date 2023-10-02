@@ -135,10 +135,10 @@ public class World : Node
 
 
         // Pour tester Victory screen
-        // if (Input.IsKeyPressed((int)KeyList.V))
-        // {
-        //     DisplayVictoryScreen();
-        // }
+         if (Input.IsKeyPressed((int)KeyList.V))
+         {
+             DisplayVictoryScreen();
+         }
     }
 
     public void ToggleOptionMenu()

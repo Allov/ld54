@@ -50,7 +50,7 @@ public class World : Node
 
         gameTimer = new Timer();
         this.AddChild(gameTimer);
-        gameTimer.WaitTime = 120;
+        gameTimer.WaitTime = 240;
         gameTimer.OneShot = true;
         gameTimer.Connect("timeout", this, "OnGameTimerTimeout");
         timerLabel = GetNode<Label>("CanvasLayer/Timer");
@@ -80,7 +80,13 @@ public class World : Node
             DisplayGameOver();
         }
 
-        timerLabel.Text = $"Time: {Math.Ceiling(gameTimer.TimeLeft)}s";
+        float totalSeconds = gameTimer.TimeLeft;
+        float minutes = totalSeconds / 60;
+        float seconds = totalSeconds % 60;
+
+        string formattedTime = $"{(int)minutes}m{(int)seconds}s";
+
+        timerLabel.Text = $"Time: {formattedTime}";
     }
 
     private void OnGameTimerTimeout()

@@ -77,7 +77,7 @@ public class PlayerCharacter : KinematicBody2D
         var s = 0.7f;
         if (Bag.Visible)
         {
-            s = 0.3f;
+            s = 0.35f;
         }
         var sm = GetNode<ColorRect>("CanvasLayer/ColorRect").Material as ShaderMaterial;
         sm.SetShaderParam("SCALE", s);
@@ -269,6 +269,8 @@ public class PlayerCharacter : KinematicBody2D
                 HeldArtifact.ArtifactShape.Visible = true;
 
                 Bag.AddChild(HeldArtifact.ArtifactShape);
+
+                Bag.CollectingArtifact = true;
             }
             else if (nearExitZone)
             {

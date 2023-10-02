@@ -28,11 +28,34 @@ public class World : Node
         { "SFX", false }
     };
 
+    private CanvasLayer optionMenu;
+    private Button optionButton;
+    private Button xButton;
+    private HSlider sfxSlider;
+    private HSlider musicSlider;
+
+    private bool isOptionMenuOpen = false;
+
+
+
     public override void _Ready()
     {
+        optionMenu = GetNode<CanvasLayer>("OptionMenu");
+        optionButton = GetNode<Button>("CanvasLayer/OptionButton");
+        xButton = GetNode<Button>("OptionMenu/XButton");
+        sfxSlider = GetNode<HSlider>("OptionMenu/SFXSlider");
+        musicSlider = GetNode<HSlider>("OptionMenu/MusicSlider");
 
-        HSlider musicVolumeSlider = GetNode<HSlider>("OptionMenu/MusicSlider");
-        musicVolumeSlider.Connect("value_changed", this, "OnMusicVolumeSliderValueChanged");
+        // Connect signals
+        optionButton.Connect("pressed", this, "ToggleOptionMenu");
+        xButton.Connect("pressed", this, "CloseOptionMenu");
+
+        sfxSlider.Connect("value_changed", this, "OnSFXSliderValueChanged");
+        musicSlider.Connect("value_changed", this, "OnMusicVolumeSliderValueChanged");
+
+        // Initialize sliders
+        sfxSlider.Value = 100;
+        musicSlider.Value = 100;
 
 
         gameOverCanvas = GetNode<CanvasLayer>("GameOverCanvas");
@@ -81,6 +104,64 @@ public class World : Node
         }
 
         timerLabel.Text = $"Time: {Math.Ceiling(gameTimer.TimeLeft)}s";
+    }
+
+    public void ToggleOptionMenu()
+    {
+        GD.Print("Sapin: " + isOptionMenuOpen);
+        if (!isOptionMenuOpen)
+        {
+            isOptionMenuOpen = true;
+            optionMenu.Visible = true;
+            GetTree().Paused = true;
+        }
+        else
+        {
+            isOptionMenuOpen = false;
+            optionMenu.Visible = false;
+            GetTree().Paused = false;
+        }
+    }
+
+    public void CloseOptionMenu()
+    {
+
+        isOptionMenuOpen = false;
+        optionMenu.Visible = false;
+        GetTree().Paused = false;
+    }
+
+    public void ToggleMuteBus(string busName)
+    {
+        if (busMuteStates.ContainsKey(busName))
+        {
+            busMuteStates[busName] = !busMuteStates[busName];
+            AudioServer.SetBusMute(AudioServer.GetBusIndex(busName), busMuteStates[busName]);
+        }
+    }
+
+    public void OnMusicVolumeSliderValueChanged(float percentageValue)
+    {
+        // Map le pourcentage (0-100) en dB (-80 à 6)
+        float dBVolume = MapPercentageToDb(percentageValue);
+
+        AudioServer.SetBusVolumeDb(AudioServer.GetBusIndex("Music"), dBVolume);
+    }
+
+    public void OnSFXSliderValueChanged(float percentageValue)
+    {
+        // Map the percentage (0-100) to dB (-80 to 6)
+        float dBVolume = MapPercentageToDb(percentageValue);
+
+        // Set the volume of the SFX bus using the mapped value
+        AudioServer.SetBusVolumeDb(AudioServer.GetBusIndex("SFX"), dBVolume);
+    }
+
+
+    private float MapPercentageToDb(float percentage)
+    {
+        float linearValue = percentage / 100.0f; // Convert to 0-1 scale
+        return GD.Linear2Db(linearValue);
     }
 
     private void OnGameTimerTimeout()
@@ -201,30 +282,5 @@ public class World : Node
         gameOverCanvas.Hide();
         currentLevelIndex = -1;
         LoadNextLevel();
-    }
-
-    public void ToggleMuteBus(string busName)
-    {
-        if (busMuteStates.ContainsKey(busName))
-        {
-            busMuteStates[busName] = !busMuteStates[busName];
-            AudioServer.SetBusMute(AudioServer.GetBusIndex(busName), busMuteStates[busName]);
-        }
-    }
-
-    public void OnMusicVolumeSliderValueChanged(float percentageValue)
-    {
-        // Map le pourcentage (0-100) en dB (-80 à 6)
-        float dBVolume = MapPercentageToDb(percentageValue);
-
-        AudioServer.SetBusVolumeDb(AudioServer.GetBusIndex("Music"), dBVolume);
-    }
-
-    private float MapPercentageToDb(float percentage)
-    {
-        float minValue = -80.0f;
-        float maxValue = 6.0f;
-
-        return (1 - percentage / 100.0f) * minValue + (percentage / 100.0f) * maxValue;
     }
 }

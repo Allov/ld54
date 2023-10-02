@@ -18,6 +18,8 @@ script = ExtResource( 4 )
 packedScenes = [ ExtResource( 5 ), ExtResource( 1 ), ExtResource( 2 ) ]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+pause_mode = 2
+layer = 100
 
 [node name="ScoreLabel" type="Label" parent="CanvasLayer"]
 anchor_left = 1.0
@@ -52,6 +54,8 @@ icon = ExtResource( 3 )
 volume_db = -31.966
 
 [node name="GameOverCanvas" type="CanvasLayer" parent="."]
+pause_mode = 2
+layer = 100
 visible = false
 
 [node name="ColorRect" type="ColorRect" parent="GameOverCanvas"]
@@ -98,36 +102,37 @@ shortcut_in_tooltip = false
 text = "Restart"
 
 [node name="OptionMenu" type="CanvasLayer" parent="."]
+pause_mode = 2
 visible = false
 
 [node name="ColorRect" type="ColorRect" parent="OptionMenu"]
-margin_left = 188.0
+margin_left = 176.0
 margin_top = 112.0
-margin_right = 388.0
+margin_right = 376.0
 margin_bottom = 212.0
 rect_min_size = Vector2( 200, 100 )
 color = Color( 0.278431, 0.223529, 0.117647, 0.917647 )
 
 [node name="Menu" type="Label" parent="OptionMenu"]
-margin_left = 263.0
+margin_left = 251.0
 margin_top = 120.0
-margin_right = 314.0
+margin_right = 302.0
 margin_bottom = 134.0
 text = "Options"
 
 [node name="XButton" type="Button" parent="OptionMenu"]
-margin_left = 368.0
+margin_left = 352.0
 margin_top = 118.0
-margin_right = 412.0
+margin_right = 396.0
 margin_bottom = 156.0
 rect_scale = Vector2( 0.4, 0.4 )
 custom_colors/font_color_disabled = Color( 0, 0, 0, 1 )
 text = "X"
 
 [node name="SFXSlider" type="HSlider" parent="OptionMenu"]
-margin_left = 261.0
+margin_left = 249.0
 margin_top = 152.0
-margin_right = 341.0
+margin_right = 329.0
 margin_bottom = 168.0
 
 [node name="Label" type="Label" parent="OptionMenu/SFXSlider"]
@@ -137,9 +142,9 @@ margin_bottom = 15.0
 text = "SFX"
 
 [node name="MusicSlider" type="HSlider" parent="OptionMenu"]
-margin_left = 261.0
+margin_left = 249.0
 margin_top = 176.0
-margin_right = 341.0
+margin_right = 329.0
 margin_bottom = 192.0
 
 [node name="Music" type="Label" parent="OptionMenu/MusicSlider"]

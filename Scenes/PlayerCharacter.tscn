@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=2]
+[gd_scene load_steps=46 format=2]
 
 [ext_resource path="res://Assets/sprites.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/PlayerCharacter.cs" type="Script" id=2]
@@ -6,6 +6,8 @@
 [ext_resource path="res://Scenes/Bag.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Vignette.gdshader" type="Shader" id=5]
 [ext_resource path="res://Assets/light2.png" type="Texture" id=6]
+[ext_resource path="res://Assets/CloseBag.wav" type="AudioStream" id=7]
+[ext_resource path="res://Assets/OpenBag.wav" type="AudioStream" id=8]
 
 [sub_resource type="AtlasTexture" id=19]
 atlas = ExtResource( 3 )
@@ -255,3 +257,9 @@ material = SubResource( 40 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+
+[node name="OpenBagSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 8 )
+
+[node name="CloseBagSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 7 )
